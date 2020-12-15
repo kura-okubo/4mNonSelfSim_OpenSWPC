@@ -135,6 +135,18 @@ ifeq ($(arch),ubuntu-gfortran)
 
 endif
 
+## NIED HPC
+ifeq ($(arch),nied-intel)
+	NETCDF_C=/cm/shared/apps/netcdf-c/4.7.0/intel/19.0.4
+	NETCDF_F=/cm/shared/apps/netcdf-f/4.4.5/intel/19.0.4
+	HDF=/cm/shared/apps/hdf5/1.10.5/intel/19.0.4
+	FC=mpiifort
+	FFLAGS=-xAVX -O3 -lmpi -I../include -D_INFO -qopenmp
+	NCFLAG=-D_NETCDF
+	NCLIB=-L$(NETCDF_C)/lib -L$(NETCDF_F)/lib -L$(HDF)/lib
+	NCINC=-I$(NETCDF_C)/include -I$(NETCDF_F)/include
+	NETCDF=-lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz
+endif
 
 ##
 ## Oakforest-PACS at the University of Tokyo
@@ -142,19 +154,19 @@ endif
 ifeq ($(arch),oak)
   FC      = module load netcdf hdf5 netcdf-fortran; mpiifort
   FFLAGS  = -axMIC-AVX512 -qopenmp -D_INFO -D_ASSERT -I../include -static-intel -static_mpi -O3 -ipo -align array64byte -qopt-streaming-stores=auto
-  NCFLAG  = -D_NETCDF 
-  NCLIB = 
-  NCINC = 
-  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 
+  NCFLAG  = -D_NETCDF
+  NCLIB =
+  NCINC =
+  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5
 endif
 # the following is an alias of Oakforest-PACS
 ifeq ($(arch),ofp)
   FC      = module load netcdf hdf5 netcdf-fortran; mpiifort
   FFLAGS  = -axMIC-AVX512 -qopenmp -D_INFO -D_ASSERT -I../include -static-intel -static_mpi -O3 -ipo -align array64byte -qopt-streaming-stores=auto
-  NCFLAG  = -D_NETCDF 
-  NCLIB = 
-  NCINC = 
-  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 
+  NCFLAG  = -D_NETCDF
+  NCLIB =
+  NCINC =
+  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5
 endif
 
 
@@ -163,9 +175,9 @@ endif
 ##
 ifeq ($(arch),obcx)
   FC      = module load netcdf hdf5 netcdf-fortran; mpiifort
-  FFLAGS  = -axCORE-AVX512 -qopenmp -D_INFO -D_ASSERT -I../include -static-intel -static_mpi -O3 -ipo 
-  NCFLAG  = -D_NETCDF 
-  NCLIB = 
-  NCINC = 
-  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 
+  FFLAGS  = -axCORE-AVX512 -qopenmp -D_INFO -D_ASSERT -I../include -static-intel -static_mpi -O3 -ipo
+  NCFLAG  = -D_NETCDF
+  NCLIB =
+  NCINC =
+  NETCDF  = -lnetcdff -lnetcdf -lhdf5_hl -lhdf5
 endif
