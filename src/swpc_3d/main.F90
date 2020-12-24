@@ -33,6 +33,7 @@ program SWPC_3D
   use m_report
   use m_pwatch
   use m_output
+  use m_modout
   use m_absorb
   use m_ckprst
   use m_green
@@ -64,7 +65,7 @@ program SWPC_3D
   call getopt('i', is_opt, fn_prm, './in/input.inf' )
   call std__getio( io_prm )
   open( io_prm, file=trim(fn_prm), action='read', status='old' )
-  
+
   call readini( io_prm, 'stopwatch_mode', stopwatch_mode, .true.  )
 
   call readini( io_prm, 'strict_mode', strict_mode, .false. )
@@ -96,6 +97,7 @@ program SWPC_3D
     !!
     call global__setup2( )
     call medium__setup( io_prm )
+    !call output__model( io_prm ) ! output 3d model parameter 2020.12.24 Kurama Okubo
     call mpi_barrier( mpi_comm_world, ierr ) !! wait until deallocation by medium__setup
     call kernel__setup( )
     call source__setup( io_prm )

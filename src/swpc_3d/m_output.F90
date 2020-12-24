@@ -103,7 +103,7 @@ module m_output
   type(sac__hdr), allocatable :: sh_stress(:,:), sh_strain(:,:)
   real(SP), allocatable :: ux(:), uy(:), uz(:)
   real(SP), allocatable :: exx(:), eyy(:), ezz(:), eyz(:), exz(:), exy(:)
-  
+
   !! I/O area in the node
   integer :: is0, is1, js0, js1, ks0, ks1
 
@@ -120,7 +120,7 @@ module m_output
   real(MP) :: r40x, r40y, r40z, r41x, r41y, r41z
 
   logical :: wav_calc_dist
-  
+
 contains
 
 
@@ -173,9 +173,9 @@ contains
     call readini( io_prm, 'sw_wav_v',   sw_wav_v,   .false. )
     call readini( io_prm, 'sw_wav_u',   sw_wav_u,   .false. )
     call readini( io_prm, 'sw_wav_stress', sw_wav_stress,   .false. )
-    call readini( io_prm, 'sw_wav_strain', sw_wav_strain,   .false. )    
+    call readini( io_prm, 'sw_wav_strain', sw_wav_strain,   .false. )
     call readini( io_prm, 'snp_format', snp_format, 'native' )
-    call readini( io_prm, 'wav_format', wav_format, 'sac' ) 
+    call readini( io_prm, 'wav_format', wav_format, 'sac' )
     call readini( io_prm, 'wav_calc_dist', wav_calc_dist, .false. )
 
     !! Do not output waveform for Green's function mode
@@ -186,7 +186,7 @@ contains
       sw_wav_v = .false.
       sw_wav_u = .false.
       sw_wav_stress = .false.
-      sw_wav_strain = .false. 
+      sw_wav_strain = .false.
       sw_wav   = .true.
     end if
 
@@ -410,8 +410,8 @@ contains
     r20x = 1.  / dx
     r20y = 1.  / dy
     r20z = 1.  / dz
-    
-    
+
+
     call mpi_barrier( mpi_comm_world, ierr )
 
     call pwatch__off( "output__setup" )
@@ -425,7 +425,7 @@ contains
   !<
   !! --
   subroutine output__export_wav()
-    
+
     integer :: i, j
     character(6) :: cid
     integer :: io
@@ -446,11 +446,11 @@ contains
           do j=1, 3
             call export_wav__sac(sh_vel(j,i), wav_vel(:,j,i))
           end do
-          
+
         end if
 
         if( sw_wav_u ) then
-          
+
           do j=1, 3
             call export_wav__sac(sh_disp(j,i), wav_disp(:,j,i))
           end do
@@ -468,7 +468,7 @@ contains
             call export_wav__sac(sh_strain(j,i), wav_strain(:,j,i))
           end do
         end if
-        
+
       end do
 
     else if ( wav_format == 'csf' ) then
@@ -489,7 +489,7 @@ contains
         call std__getio(io, is_big=.true.)
         open(io, file=trim(fn), form='unformatted', action='write', status='replace')
 #else
-        call std__getio(io, is_big=.true.) 
+        call std__getio(io, is_big=.true.)
         open(io, file=trim(fn), access='stream', form='unformatted', action='write', status='replace')
 #endif
       end if
@@ -505,21 +505,21 @@ contains
     call pwatch__off("output__export_wav")
 
   contains
-    
+
     subroutine export_wav__sac( sh, dat )
 
       type(sac__hdr), intent(in) :: sh
       real(SP), intent(in) :: dat(:)
       character(256) :: fn
       !! --
-      
+
       fn = trim(odir) // '/wav/' // trim(title) // '.' // trim(sh%kstnm) // '.' // trim(sh%kcmpnm) // '.sac'
       call sac__write( fn, sh, dat, .true. )
-      
+
     end subroutine export_wav__sac
 
     subroutine export_wav__csf(nst, ncmp, sh, dat)
-      
+
       integer, intent(in) :: nst, ncmp
       type(sac__hdr), intent(in) :: sh(ncmp, nst)
       real(SP), intent(in) :: dat(ntw, ncmp, nst)
@@ -531,7 +531,7 @@ contains
       call csf__write(fn, nst*ncmp, ntw, reshape(sh,(/ncmp*nst/)), reshape(dat, (/ntw, ncmp*nst/)))
 
     end subroutine export_wav__csf
-    
+
 
   end subroutine output__export_wav
   !! --------------------------------------------------------------------------------------------------------------------------- !!
@@ -716,7 +716,7 @@ contains
         write(STDERR,*) 'WARNING[output__setup]: station depth exceeds kbeg at station ' // trim(stnm(i))
         kst(i) = kbeg + 1
       end if
-      
+
     end do
 
     if( sw_wav_v ) then
@@ -724,13 +724,13 @@ contains
       allocate( sh_vel(3,nst) )
       wav_vel(:,:,:) = 0.0
     end if
-    
+
     if( sw_wav_u ) then
       allocate( wav_disp(ntw,3,nst) )
       allocate( sh_disp(3,nst) )
       wav_disp(:,:,:) = 0.0
     end if
-    
+
     if( sw_wav_stress ) then
       allocate( wav_stress(ntw,6,nst) )
       allocate( sh_stress(6,nst) )
@@ -742,7 +742,7 @@ contains
       allocate( sh_strain(6,nst) )
       wav_strain(:,:,:) = 0.0
     end if
-    
+
     !!
     !! set-up sac header
     !!
@@ -755,7 +755,7 @@ contains
         sh_vel(1,i)%kcmpnm = "Vx"
         sh_vel(2,i)%kcmpnm = "Vy"
         sh_vel(3,i)%kcmpnm = "Vz"
-        
+
         sh_vel(1,i)%cmpinc = 90.0;  sh_vel(1,i)%cmpaz  =  0.0 + phi
         sh_vel(2,i)%cmpinc = 90.0;  sh_vel(2,i)%cmpaz  = 90.0 + phi
         sh_vel(3,i)%cmpinc =  0.0;  sh_vel(3,i)%cmpaz  =  0.0
@@ -763,13 +763,13 @@ contains
         sh_vel(1:3,i)%idep = 7 ! velocity [nm/s]
 
         if( wav_calc_dist ) then
-          sh_vel(:,i)%lcalda = .false. 
+          sh_vel(:,i)%lcalda = .false.
           sh_vel(:,i)%dist = sqrt( (sx0 - xst(i))**2 + (sy0 - yst(i))**2 )
           sh_vel(:,i)%az = std__rad2deg(atan2(yst(i)-sy0, xst(i)-sx0))
           sh_vel(:,i)%baz = std__rad2deg(atan2(sy0-yst(i), sx0-xst(i)))
-        end if        
+        end if
       end if
-      
+
       if( sw_wav_u ) then
         do j=1, 3
           call setup_sac_header( sh_disp(j,i), i )
@@ -785,19 +785,19 @@ contains
         sh_disp(1:3,i)%idep = 6 ! displacement [nm]
 
         if( wav_calc_dist ) then
-          sh_disp(:,i)%lcalda = .false. 
+          sh_disp(:,i)%lcalda = .false.
           sh_disp(:,i)%dist = sqrt( (sx0 - xst(i))**2 + (sy0 - yst(i))**2 )
           sh_disp(:,i)%az = std__rad2deg(atan2(yst(i)-sy0, xst(i)-sx0))
           sh_disp(:,i)%baz = std__rad2deg(atan2(sy0-yst(i), sx0-xst(i)))
         end if
-                
+
       end if
-      
+
       if( sw_wav_stress ) then
         do j=1, 6
           call setup_sac_header( sh_stress(j,i), i)
         end do
-        
+
         sh_stress(1,i)%kcmpnm = "Sxx"
         sh_stress(2,i)%kcmpnm = "Syy"
         sh_stress(3,i)%kcmpnm = "Szz"
@@ -806,9 +806,9 @@ contains
         sh_stress(6,i)%kcmpnm = "Sxy"
 
         sh_stress(:,i)%idep = 5 ! unknown
-        
+
         if( wav_calc_dist ) then
-          sh_stress(:,i)%lcalda = .false. 
+          sh_stress(:,i)%lcalda = .false.
           sh_stress(:,i)%dist = sqrt( (sx0 - xst(i))**2 + (sy0 - yst(i))**2 )
           sh_stress(:,i)%az = std__rad2deg(atan2(yst(i)-sy0, xst(i)-sx0))
           sh_stress(:,i)%baz = std__rad2deg(atan2(sy0-yst(i), sx0-xst(i)))
@@ -819,7 +819,7 @@ contains
         do j=1, 6
           call setup_sac_header( sh_strain(j,i), i)
         end do
-        
+
         sh_strain(1,i)%kcmpnm = "Exx"
         sh_strain(2,i)%kcmpnm = "Eyy"
         sh_strain(3,i)%kcmpnm = "Ezz"
@@ -827,10 +827,10 @@ contains
         sh_strain(5,i)%kcmpnm = "Exz"
         sh_strain(6,i)%kcmpnm = "Exy"
 
-        sh_strain(:,i)%idep = 5 ! unknown        
-        
+        sh_strain(:,i)%idep = 5 ! unknown
+
         if( wav_calc_dist ) then
-          sh_strain(:,i)%lcalda = .false. 
+          sh_strain(:,i)%lcalda = .false.
           sh_strain(:,i)%dist = sqrt( (sx0 - xst(i))**2 + (sy0 - yst(i))**2 )
           sh_strain(:,i)%az = std__rad2deg(atan2(yst(i)-sy0, xst(i)-sx0))
           sh_strain(:,i)%baz = std__rad2deg(atan2(sy0-yst(i), sx0-xst(i)))
@@ -840,7 +840,7 @@ contains
     end do
 
   contains
-    
+
     subroutine setup_sac_header( sh, ist )
 
       type(sac__hdr), intent(out) :: sh
@@ -855,7 +855,7 @@ contains
       sh%delta   = ntdec_w * dt
       sh%npts    = ntw
       sh%mag     = mw
-      
+
       if( bf_mode ) then
         sh%user0   = fx0
         sh%user1   = fy0
@@ -868,7 +868,7 @@ contains
         sh%user4   = mxz0
         sh%user5   = mxy0
       end if
-      
+
       sh%user6   = clon  !< coordinate
       sh%user7   = clat  !< coordinate
       sh%user8   = phi
@@ -876,7 +876,7 @@ contains
 
       call daytim__localtime( sh%tim, sh%nzyear, sh%nzmonth, sh%nzday, sh%nzhour, sh%nzmin, sh%nzsec )
       call daytim__ymd2jul  ( sh%nzyear, sh%nzmonth, sh%nzday, sh%nzjday )
-      sh%nzmsec = 0      
+      sh%nzmsec = 0
 
       !! station dependent
       sh%kevnm = trim(adjustl( title(1:16) ))
@@ -884,7 +884,7 @@ contains
       sh%stlo  = stlo(ist)
       sh%stla  = stla(ist)
       sh%stdp  = zst(ist)*1000 ! in meter unit
-      
+
     end subroutine setup_sac_header
 
   end subroutine read_stinfo
@@ -2134,7 +2134,7 @@ contains
     !$omp end parallel do
 
     if( mod( it-1, ntdec_s ) /= 0 ) return
-    
+
     if( snp_format == 'native' ) then
       call write_reduce_array2d_r( nxs, nys, fs_v%ionode, fs_v%io, buf(:,:,1) )
       call write_reduce_array2d_r( nxs, nys, fs_v%ionode, fs_v%io, buf(:,:,2) )
@@ -2145,7 +2145,7 @@ contains
       call write_reduce_array2d_r_nc( it, 3, nxs, nys, fs_v, buf(:,:,3) )
     end if
 
-    
+
   end subroutine wbuf_fs_v
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 
@@ -2186,7 +2186,7 @@ contains
     end do
     !$omp end parallel do
     if( mod( it-1, ntdec_s ) /= 0 ) return
-    
+
     if( snp_format == 'native' ) then
       call write_reduce_array2d_r( nxs, nys, ob_v%ionode, ob_v%io, buf(:,:,1) )
       call write_reduce_array2d_r( nxs, nys, ob_v%ionode, ob_v%io, buf(:,:,2) )
@@ -2196,8 +2196,8 @@ contains
       call write_reduce_array2d_r_nc( it, 2, nxs, nys, ob_v, buf(:,:,2) )
       call write_reduce_array2d_r_nc( it, 3, nxs, nys, ob_v, buf(:,:,3) )
     end if
-    
-    
+
+
   end subroutine wbuf_ob_v
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 
@@ -2358,7 +2358,7 @@ contains
       end do
     end do
     !$omp end parallel do
-    
+
     if( mod( it-1, ntdec_s ) == 0 ) then
       if( snp_format == 'native' ) then
         call write_reduce_array2d_r( nxs, nys, fs_u%ionode, fs_u%io, buf_fs_u(:,:,1) )
@@ -2418,7 +2418,7 @@ contains
         call write_reduce_array2d_r_nc( it, 3, nxs, nys, ob_u, buf_ob_u(:,:,3) )
       end if
     end if
-    
+
   end subroutine wbuf_ob_u
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 
@@ -2454,7 +2454,7 @@ contains
         exz(:) = 0.0
         exy(:) = 0.0
       end if
-      
+
     end if
 
     !! integrate waveform
@@ -2518,10 +2518,10 @@ contains
 
       end do
       !$omp end parallel do
-      
+
     end if
-    
-      
+
+
     !! output
     if( mod( it-1, ntdec_w ) == 0 ) then
       itw = (it-1)/ntdec_w + 1
@@ -2574,7 +2574,7 @@ contains
         !$omp end parallel do
       end if
 
-      
+
     end if
 
     call pwatch__off( "output__store_wav" )
@@ -2659,7 +2659,7 @@ contains
     write( io ) max_ob_u(is0:is1, js0:js1, 1:3 )
     write( io ) max_fs_v(is0:is1, js0:js1, 1:3 )
     write( io ) max_fs_u(is0:is1, js0:js1, 1:3 )
-    
+
     if( sw_wav ) then
       write( io ) ntdec_w
       write( io ) nst
@@ -2679,7 +2679,7 @@ contains
         if( sw_wav_v  ) then
           write( io ) sh_vel(:,:), wav_vel(:,:,:)
         end if
-        
+
         if( sw_wav_u ) then
           write( io ) sh_disp(:,:), wav_disp(:,:,:)
           write( io ) ux(:), uy(:), uz(:)
@@ -2688,7 +2688,7 @@ contains
         if( sw_wav_stress ) then
           write( io ) sh_stress(:,:), wav_stress(:,:,:)
         end if
-        
+
         if( sw_wav_strain ) then
           write( io ) sh_strain(:,:), wav_strain(:,:,:)
           write( io ) exx(:), eyy(:), ezz(:), eyz(:), exz(:), exy(:)
@@ -2754,13 +2754,13 @@ contains
     read( io ) max_ob_v(is0:is1, js0:js1, 1:3 )
     read( io ) max_ob_u(is0:is1, js0:js1, 1:3 )
     read( io ) max_fs_v(is0:is1, js0:js1, 1:3 )
-    read( io ) max_fs_u(is0:is1, js0:js1, 1:3 )    
+    read( io ) max_fs_u(is0:is1, js0:js1, 1:3 )
 
     if( sw_wav ) then
       read( io ) ntdec_w
       read( io ) nst
       read( io ) ntw
-      
+
       if( nst > 0 ) then
         allocate( xst(nst), yst(nst), zst(nst) )
         allocate( ist(nst), jst(nst), kst(nst) )
@@ -2800,9 +2800,9 @@ contains
           read(io) exx, eyy, ezz, eyz, exz, exy
         end if
       end if
-      
+
     end if
-    
+
     if( snp_format == 'native' ) then
 
 #ifdef _ES
@@ -3064,7 +3064,7 @@ contains
           call close_nc( ob_v )
         end if
       end if
-      
+
       if( yz_u%sw .and. myid == yz_u%ionode )   call close_nc( yz_u )
       if( xz_u%sw .and. myid == xz_u%ionode )   call close_nc( xz_u )
       if( xy_u%sw .and. myid == xy_u%ionode )   call close_nc( xy_u )
@@ -3080,7 +3080,7 @@ contains
           call close_nc( ob_u )
         end if
       end if
-      
+
     end if
 
 
@@ -3099,7 +3099,7 @@ contains
     call mpi_reduce(sbuf, rbuf, nxs*nys*3, MPI_REAL, MPI_SUM, hdr%ionode, mpi_comm_world, ierr )
     maxv = reshape( rbuf, shape(maxv) )
     if( myid == hdr%ionode ) then
-      
+
       if( snp_format == 'native' ) then
         !! pass
       else
@@ -3133,10 +3133,10 @@ contains
 #endif
       end if
     end if
-    
+
   end subroutine output__put_maxval
   !! --------------------------------------------------------------------------------------------------------------------------- !!
-  
+
 
   !! --------------------------------------------------------------------------------------------------------------------------- !!
   !>
