@@ -14,6 +14,7 @@ module m_medium
   use m_global
   use m_pwatch
   use m_readini
+  use m_medout
   use m_vmodel_uni
   use m_vmodel_grd
   use m_vmodel_lhm
@@ -133,9 +134,9 @@ contains
       case ( 'lhm_rmed' )
         call vmodel_lhm_rmed( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
             rho, lam, mu, taup, taus, bddep )
-      case ( 'balldrop' )
-        call vmodel_balldrop( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
-            rho, lam, mu, taup, taus, bddep )
+      ! case ( 'balldrop' )
+      !   call vmodel_balldrop( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
+      !       rho, lam, mu, taup, taus, bddep )
 
 
       case default
@@ -265,6 +266,12 @@ contains
     !! Store grid-boundary averaged medium for staggered grid locations
     !!
     call averaged_medium()
+
+    !!
+    !! Output model parameters 2020.12.25 Kurama Okubo
+    !!
+
+    call output__model( io_prm, size(xc), size(yc), size(zc), xc, yc, zc, rho, lam, mu, taup, taus )
 
 
     !!
