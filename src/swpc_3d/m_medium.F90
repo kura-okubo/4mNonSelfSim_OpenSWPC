@@ -22,6 +22,7 @@ module m_medium
   use m_vmodel_uni_rmed
   use m_vmodel_grd_rmed
   use m_vmodel_lhm_rmed
+  use m_vmodel_balldrop
   implicit none
   private
   save
@@ -134,9 +135,9 @@ contains
       case ( 'lhm_rmed' )
         call vmodel_lhm_rmed( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
             rho, lam, mu, taup, taus, bddep )
-      ! case ( 'balldrop' )
-      !   call vmodel_balldrop( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
-      !       rho, lam, mu, taup, taus, bddep )
+      case ( 'balldrop' )
+        call vmodel_balldrop( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
+            rho, lam, mu, taup, taus, bddep )
 
 
       case default
