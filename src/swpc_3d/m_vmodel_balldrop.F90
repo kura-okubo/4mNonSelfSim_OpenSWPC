@@ -75,7 +75,7 @@ contains
     ! real(SP) :: vp0, vs0, rho0, qp0, qs0, topo0
     real(SP) :: vp_rock, vs_rock, rho_rock, qp0_rock, qs0_rock
     real(SP) :: vp_metal, vs_metal, rho_metal, qp0_metal, qs0_metal
-    real(SP) :: balldrop_l, balldrop_w, balldrop_h, balldrop_hm, topo0
+    real(SP) :: balldrop_l, balldrop_w, balldrop_h, balldrop_lm, balldrop_hm, topo0
 
     ! real(SP) :: vp1, vs1
     real(SP) :: dum
@@ -106,6 +106,7 @@ contains
     call readini( io_prm, 'balldrop_l',   balldrop_l, 4100.0e-6 )
     call readini( io_prm, 'balldrop_w',   balldrop_w,  100.0e-6 )
     call readini( io_prm, 'balldrop_h',   balldrop_h,  200.0e-6 )
+    call readini( io_prm, 'balldrop_lm',   balldrop_lm,  50.0e-6 )
     call readini( io_prm, 'balldrop_hm',   balldrop_hm,  20.0e-6 )
 
     !! bd is not used in this model, so topo0 is fixed at 0.
@@ -146,16 +147,33 @@ contains
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
           else if (zc( k ) > balldrop_h) then
-            !! this is bottom metal plate
-            rho(k,i,j) = rho_metal
-            mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs1 * vs1
-            lam(k,i,j) = rho(k,i,j) * ( vp_metal*vp_metal - 2*vs_metal*vs_metal ) ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
-            qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
-            qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
+            if (xc(i) < -balldrop_lm  .or. xc(i) > balldrop_l + balldrop_lm) then
+              !! this is air outside of the side metal plates
+              rho(k,i,j) = 0.001
+              mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
+              lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+              qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+              qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+            else
+              !! this is bottom metal plate
+              rho(k,i,j) = rho_metal
+              mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs1 * vs1
+              lam(k,i,j) = rho(k,i,j) * ( vp_metal*vp_metal - 2*vs_metal*vs_metal ) ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+              qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
+              qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
+            end if
 
           else if (zc( k ) <= balldrop_h .and. zc( k ) >= 0.0) then
+            if (xc(i) < -balldrop_lm  .or. xc(i) > balldrop_l + balldrop_lm) then
+              !! this is air outside of the side metal plates
+              rho(k,i,j) = 0.001
+              mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
+              lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+              qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+              qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+
             !! this is middle rock and side metal plates
-            if (xc(i) < 0.0 .or. xc(i) > balldrop_l) then
+            else if (xc(i) < 0.0 .or. xc(i) > balldrop_l) then
               !! side metal plates
               rho(k,i,j) = rho_metal
               mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs1 * vs1
