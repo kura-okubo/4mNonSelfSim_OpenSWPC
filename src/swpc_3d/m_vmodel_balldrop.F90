@@ -16,8 +16,6 @@ module m_vmodel_balldrop
 
   use m_std
   use m_global
-  use m_geomap
-  use m_fdtool
   use m_readini
   implicit none
   private
@@ -75,8 +73,9 @@ contains
 
     integer  :: i, j, k
     ! real(SP) :: vp0, vs0, rho0, qp0, qs0, topo0
-    real(SP) :: vp_rock, vs_rock, rho_rock, qp_rock, qs_rock
-    real(SP) :: vp_metal, vs_metal, rho_metal, qp_metal, qs_metal
+    real(SP) :: vp_rock, vs_rock, rho_rock, qp0_rock, qs0_rock
+    real(SP) :: vp_metal, vs_metal, rho_metal, qp0_metal, qs0_metal
+    real(SP) :: balldrop_l, balldrop_w, balldrop_h, topo0
 
     ! real(SP) :: vp1, vs1
     real(SP) :: dum
@@ -90,98 +89,100 @@ contains
     !! subroutine readini() can access parameters defined in the input file.
     !! Any original parameters can be added in the input file.
     !!
-    ! call readini( io_prm, 'vp0',    vp0, 5.0 )
-    ! call readini( io_prm, 'vs0',    vs0, vp0/sqrt(3.0) )
-    ! call readini( io_prm, 'rho0',   rho0, 2.7 )
-    ! call readini( io_prm, 'qp0',    qp0, 1000000.0 )
-    ! call readini( io_prm, 'qs0',    qs0, 1000000.0 )
-    ! call readini( io_prm, 'topo0', topo0, 0.0 )
 
-    ! !! Read parameters for balldrop model
-    ! call readini( io_prm, 'vp_rock',   vp_rock, 5.0 )
-    ! call readini( io_prm, 'vp_metal',  vp_metal, 5.0 )
-    ! call readini( io_prm, 'vs_rock',   vp_rock, 5.0 )
-    ! call readini( io_prm, 'vs_metal',  vp_metal, 5.0 )
-    ! call readini( io_prm, 'rho_rock',  rho_rock, 2.7 )
-    ! call readini( io_prm, 'rho_metal', rho_metal, 2.7 )
-    !
-    ! call readini( io_prm, 'qp_rock',   qp_rock,  1000000.0 )
-    ! call readini( io_prm, 'qp_metal',  qp_metal, 1000000.0 )
-    ! call readini( io_prm, 'qs_rock',   qs_rock,  1000000.0 )
-    ! call readini( io_prm, 'qs_metal',  qs_metal, 1000000.0 )
-    !
-    !
-    ! !! Way to define velocity model
-    !
-    !
-    ! !!
-    ! !! The medium parameter must be set from given region (i0:i1, j0:j1, k0:k1)
-    ! !! Note that the order of indices is k->i->j, for improving performance
-    ! !!
-    ! do j = j0, j1
-    !   do i = i0, i1
-    !
-    !     !! define topography shape here
-    !     bd(i,j,0) = topo0
-    !
-    !     do k = k0, k1
-    !
-    !       if( zc( k ) > bd(i,j,0) ) then
-    !
-    !         !! elastic medium
-    !         rho(k,i,j) = rho0
-    !         mu (k,i,j) = rho(k,i,j) * vs0 * vs0
-    !         lam(k,i,j) = rho(k,i,j) * ( vp0*vp0 - 2*vs0*vs0 )
-    !         qp (k,i,j) = qp0
-    !         qs (k,i,j) = qs0
-    !
-    !       else if ( zc (k) > 0.0 ) then
-    !
-    !         !!
-    !         !! ocean column
-    !         !!
-    !         !! The code treat the uppermost layer as ocean column if P-wave velocity is finite and S-wave velocity is zero
-    !         !!
-    !         vp1 = 1.5
-    !         vs1 = 0.0
-    !
-    !         rho(k,i,j) = 1.0
-    !         mu (k,i,j) = rho(k,i,j) * vs1 * vs1
-    !         lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
-    !         qp (k,i,j) = 1000000.0 ! effectively no attenuation in ocean column
-    !         qs (k,i,j) = 1000000.0
-    !
-    !       else
-    !
-    !         !!
-    !         !! air column
-    !         !!
-    !         !! The air column must have zero P- & S-wave velocity (i.e., mu=lam=0)
-    !         !! Please use non-zero but very small density (e.g., 0.001) for avoiding zero division with satisfying boundary cond.
-    !         !! Since waves do not penetrate to the air column, qp and qs does not affect. Just set dummy.
-    !         !!
-    !         vp1 = 0.0
-    !         vs1 = 0.0
-    !
-    !         rho(k,i,j) = 0.001
-    !         mu (k,i,j) = rho(k,i,j) * vs1 * vs1
-    !         lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
-    !         qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
-    !         qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
-    !
-    !       end if
-    !     end do
-    !   end do
-    ! end do
-    !
-    ! !! dummy value
-    ! bd(:,:,1:NBD) = -9999
-    !
-    ! ! substitute to a dummy variable for avoiding compiler warnings
-    ! dum = xc(i0)
-    ! dum = yc(j0)
-    ! dum = zc(k0)
-    ! dum = vcut
+    !! Read parameters for balldrop model
+    call readini( io_prm, 'vp_rock',   vp_rock, 6.56 )
+    call readini( io_prm, 'vs_rock',   vs_rock, 3.7 )
+    call readini( io_prm, 'rho_rock',  rho_rock, 2.7 )
+    call readini( io_prm, 'qp0_rock',   qp0_rock,  1000000.0 )
+    call readini( io_prm, 'qs0_rock',   qs0_rock,  1000000.0 )
+
+    call readini( io_prm, 'vp_metal',  vp_metal, 5.5 )
+    call readini( io_prm, 'vs_metal',  vs_metal, 3.2 )
+    call readini( io_prm, 'rho_metal', rho_metal, 8.0 )
+    call readini( io_prm, 'qp0_metal',  qp0_metal, 1000000.0 )
+    call readini( io_prm, 'qs0_metal',  qs0_metal, 1000000.0 )
+
+    call readini( io_prm, 'balldrop_l',   balldrop_l, 4100.0e-6 )
+    call readini( io_prm, 'balldrop_w',   balldrop_w,  100.0e-6 )
+    call readini( io_prm, 'balldrop_h',   balldrop_h,  200.0e-6 )
+
+    !! bd is not used in this model, so topo0 is fixed at 0.
+    topo0 = 0.0
+
+    !! Way to define velocity model
+
+    !!
+    !! The medium parameter must be set from given region (i0:i1, j0:j1, k0:k1)
+    !! Note that the order of indices is k->i->j, for improving performance
+    !!
+    do j = j0, j1
+      do i = i0, i1
+
+        !! define topography shape here
+        bd(i,j,0) = topo0
+
+        do k = k0, k1
+          !! Flowchart to define the velocity model for ball drop test
+          !! 1. if (i, j) is outside of medium, assign the air column
+          !! 2. if (i, j) is inside the medium, select if it is rock, metal or air.
+          !! ---------------------- ----------------------------------------------
+
+          if( abs(yc(j)) > balldrop_w/2.0 ) then
+            !! this is outside of medium, assign the air column
+            rho(k,i,j) = 0.001
+            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+            qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+
+          else if (zc( k ) > balldrop_h) then
+            !! this is bottom metal plate
+            rho(k,i,j) = rho_metal
+            mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = rho(k,i,j) * ( vp_metal*vp_metal - 2*vs_metal*vs_metal ) ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
+            qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
+
+          else if (zc( k ) <= balldrop_h .and. zc( k ) >= 0.0) then
+            !! this is middle rock and side metal plates
+            if (xc(i) < 0.0 .or. xc(i) > balldrop_l) then
+              !! side metal plates
+              rho(k,i,j) = rho_metal
+              mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs1 * vs1
+              lam(k,i,j) = rho(k,i,j) * ( vp_metal*vp_metal - 2*vs_metal*vs_metal ) ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+              qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
+              qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
+            else
+              !! this is rock sample
+              rho(k,i,j) = rho_rock
+              mu (k,i,j) = rho(k,i,j) * vs_rock * vs_rock ! rho(k,i,j) * vs1 * vs1
+              lam(k,i,j) = rho(k,i,j) * ( vp_rock*vp_rock - 2*vs_rock*vs_rock ) ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+              qp (k,i,j) = qp0_rock ! artificially strong attenuation in air-column
+              qs (k,i,j) = qs0_rock ! artificially strong attenuation in air-column
+            end if
+
+          else
+            ! this is middle top air column
+            rho(k,i,j) = 0.001
+            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+            qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+          endif
+          !! --------------------------------------------------------------------
+        end do
+      end do
+    end do
+
+    !! dummy value
+    bd(:,:,1:NBD) = -9999
+
+    ! substitute to a dummy variable for avoiding compiler warnings
+    dum = xc(i0)
+    dum = yc(j0)
+    dum = zc(k0)
+    dum = vcut
 
   end subroutine vmodel_balldrop
   !! --------------------------------------------------------------------------------------------------------------------------- !!
