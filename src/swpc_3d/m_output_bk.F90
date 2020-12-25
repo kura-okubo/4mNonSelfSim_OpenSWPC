@@ -1302,8 +1302,7 @@ contains
       call nc_chk( nf90_put_att( hdr%io, hdr%vid_x1, 'standard_name', 'projection_x_coordinate' ) )
       call nc_chk( nf90_put_att( hdr%io, hdr%vid_x2, 'standard_name', 'projection_y_coordinate' ) )
       do i=1, 4
-        ! NOTE: To use paraview, modify coordinates to x and y 2020.12.25 Kurama Okubo
-        call nc_chk( nf90_put_att( hdr%io, hdr%medid(i), 'coordinates', 'x y' ) )
+        call nc_chk( nf90_put_att( hdr%io, hdr%medid(i), 'coordinates', 'lat lon' ) )
       end do
     end if
 
@@ -1314,10 +1313,7 @@ contains
       call nc_chk( nf90_put_att( hdr%io, hdr%varid(i), 'units', trim(hdr%vunit(i)) ) )
 
       if( hdr % coordinate == 'ob' .or.  hdr % coordinate == 'fs' .or.  hdr % coordinate == 'xy' ) then
-
-        ! NOTE: To use paraview, modify coordinates to x and y 2020.12.25 Kurama Okubo
-        call nc_chk( nf90_put_att( hdr%io, hdr%varid(i), 'coordinates', 'x y' ) )
-        ! call nc_chk( nf90_put_att( hdr%io, hdr%varid(i), 'coordinates', 'lat lon' ) )
+        call nc_chk( nf90_put_att( hdr%io, hdr%varid(i), 'coordinates', 'lat lon' ) )
       end if
 
     end do
