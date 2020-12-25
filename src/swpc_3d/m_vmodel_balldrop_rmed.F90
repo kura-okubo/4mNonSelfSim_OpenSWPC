@@ -76,7 +76,7 @@ contains
     ! real(SP) :: vp0, vs0, rho0, qp0, qs0, topo0
     real(SP) :: vp_rock, vs_rock, rho_rock, qp0_rock, qs0_rock
     real(SP) :: vp_metal, vs_metal, rho_metal, qp0_metal, qs0_metal
-    real(SP) :: balldrop_l, balldrop_w, balldrop_h, topo0
+    real(SP) :: balldrop_l, balldrop_w, balldrop_h, balldrop_hm, topo0
 
     character(256) :: dir_rmed, fn_rmed
     real(SP), allocatable :: xi(:,:,:)
@@ -114,6 +114,7 @@ contains
     call readini( io_prm, 'balldrop_l',   balldrop_l, 4100.0e-6 )
     call readini( io_prm, 'balldrop_w',   balldrop_w,  100.0e-6 )
     call readini( io_prm, 'balldrop_h',   balldrop_h,  200.0e-6 )
+    call readini( io_prm, 'balldrop_hm',   balldrop_hm,  20.0e-6 )
 
     call readini( io_prm, 'rhomin', rhomin, 1.0 )
 
@@ -163,6 +164,14 @@ contains
 
           if( abs(yc(j)) > balldrop_w/2.0 ) then
             !! this is outside of medium, assign the air column
+            rho(k,i,j) = 0.001
+            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+            qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
+
+          else if (zc( k ) > balldrop_h+balldrop_hm) then
+            !! this is air under the bottom metal plate
             rho(k,i,j) = 0.001
             mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
             lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
