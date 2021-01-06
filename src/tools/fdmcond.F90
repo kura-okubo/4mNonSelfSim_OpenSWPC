@@ -292,13 +292,13 @@ contains
 
     write(*,*)
     write(*,'(A)') " Derivaed Parameters: "
-    write(*,'(A,F9.5)') "   fmax   = ", fmax
-    write(*,'(A,F9.5)') "   dx    >= ", dh
+    write(*,'(A,F12.8)') "   fmax   = ", fmax
+    write(*,'(A,F12.8)') "   dx    >= ", dh
     if( dim == 3 ) then
-      write(*,'(A,F9.5)') "   dy    >= ", dh
+      write(*,'(A,F12.8)') "   dy    >= ", dh
     end if
-    write(*,'(A,F9.5)') "   dz    >= ", dh
-    write(*,'(A,F9.5)') "   vmin  >= ", vmin
+    write(*,'(A,F12.8)') "   dz    >= ", dh
+    write(*,'(A,F12.8)') "   vmin  >= ", vmin
     write(*,*)
     if( dim==3 ) write(*,*) "dx=dy=dz=dh has been assumed. vmin depends choice of dh. "
     if( dim==2 ) write(*,*) "dx=dz=dh has been assumed. vmin depends choice of dh. "
