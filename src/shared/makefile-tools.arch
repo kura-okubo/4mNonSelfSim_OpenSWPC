@@ -128,7 +128,8 @@ endif
 ## NIED HPC
 ifeq ($(arch),nied-intel)
 	NETCDF_C=/cm/shared/apps/netcdf-c/4.7.0/intel/19.0.4
-	NETCDF_F=/cm/shared/apps/netcdf-f/4.4.5/intel/19.0.4
+	#NETCDF_F=/cm/shared/apps/netcdf-f/4.4.5/intel/19.0.4
+	NETCDF_F=/cm/shared/apps/netcdf-f.20201112/4.4.5/intel/19.0.4
 	HDF=/cm/shared/apps/hdf5/1.10.5/intel/19.0.4
 	FC=mpiifort
 	FFLAGS=-xAVX -O3 -lmpi -I../include -D_INFO -qopenmp
