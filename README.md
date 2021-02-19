@@ -4,6 +4,18 @@
 
 Corresponding Author: Takuto Maeda
 
+## Development Note
+This forked repository `OpenSWPC_NIED` is developed for the sake of modeling 3d wave propagation on NIED laboratory experiments.
+
+Development author: [Kurama Okubo](https://github.com/kura-okubo).
+
+Major updates are following:
+
+1. Velocity model of rock blocks for 4m friction apparatus.
+2. Hertzian source time function for ball-drop test.
+3. Output velocity structure in NetCDF format. 
+4. Added an architecture for compiling at NIED HPC.
+
 ## Description
 
 This software simulate seismic wave propagation by
