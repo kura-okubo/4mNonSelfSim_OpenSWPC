@@ -18,7 +18,7 @@ Major updates are following:
 
 ### Hertz Source Time Function
 
-See [Note on Hertz source implementation](doc/note_on_hertzsource.md).
+See [Note on Hertz source implementation](doc/note_on_hertzsource.ipynb).
 
 ## Description
 
