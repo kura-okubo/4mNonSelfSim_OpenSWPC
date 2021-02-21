@@ -4,7 +4,7 @@
 
 Corresponding Author: Takuto Maeda
 
-## Development Note
+## Development Note for Ball drop test
 This forked repository `OpenSWPC_NIED` is developed for the sake of modeling 3d wave propagation on NIED laboratory experiments.
 
 Development author: [Kurama Okubo](https://github.com/kura-okubo).
@@ -13,8 +13,12 @@ Major updates are following:
 
 1. Velocity model of rock blocks for 4m friction apparatus.
 2. Hertzian source time function for ball-drop test.
-3. Output velocity structure in NetCDF format. 
+3. Output velocity structure in NetCDF format.
 4. Added an architecture for compiling at NIED HPC.
+
+### Hertz Source Time Function
+
+See [Note on Hertz source implementation](doc/note_on_hertzsource.md).
 
 ## Description
 
