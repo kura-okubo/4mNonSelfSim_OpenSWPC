@@ -828,7 +828,7 @@ contains
         read( adum,*,iostat=ierr ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
 
         ! debug
-        write(STDERR, * ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
+        ! write(STDERR, * ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
         !-------
 
         call assert( ierr == 0 )
@@ -850,8 +850,8 @@ contains
         v0 = sqrt(2*ga*h)
 
         ! debug
-        write(STDERR,*) "v0, G_rock, nu_rock, E_rock"
-        write(STDERR,*) v0, G2, nu2, E2
+        ! write(STDERR,*) "v0, G_rock, nu_rock, E_rock"
+        ! write(STDERR,*) v0, G2, nu2, E2
 
         ! compute hertz_fmax and tc
         del1 = (1-nu1**2)/(PI*E1)
@@ -861,9 +861,9 @@ contains
         hertz_fmax = 1.917 * (rho1**(3.0/5.0)) * ((del1 + del2)**(-2.0/5.0)) * (R1**2.0) * (v0**(6.0/5.0))
 
         ! debug
-        write(STDERR, * ) del1, del2, rho1, R1, v0
-        write(STDERR, * ) "tc, fmax"
-        write(STDERR, * ) tc, hertz_fmax
+        ! write(STDERR, * ) del1, del2, rho1, R1, v0
+        ! write(STDERR, * ) "tc, fmax"
+        ! write(STDERR, * ) tc, hertz_fmax
 
         !-------
         ! the scalling factor fz is approximated from the mathematical formulation of integral for f(t)
