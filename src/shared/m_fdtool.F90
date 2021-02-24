@@ -32,12 +32,9 @@ contains
 !!$      is_rhomin_under = .false.
 !!$      return
 !!$    end if
-    
-    
     !! keep vp/vs ratio
     gamma = vp / vs
     if( gamma < epsilon(1.0) ) gamma = sqrt(3.)
-    
     !! velocity check
     if( vp > vmax .or. vs > vmax ) then
       is_vmax_over = .true.
@@ -536,29 +533,36 @@ contains
 
   !! --------------------------------------------------------------------------------------------------------------------------- !!
   !>
-  !! The Herrmann function for moment rate
+  !! The Hertzian function for body force source time function
   !!
   !! 2021.02.19 implemeted by Kurama Okubo
   !! This function have >0 value among ts <= t <= ts + tr for given start time ts and rise time tr
   !! The amplitude is normalized by \int_0^\infty f(t) dt = 1
   !<
-  real(SP) function triangle( t, ts, tr )
+  real(SP) function hertz( t, srcprm )
 
     real(SP), intent(in) :: t   !<  time
-    real(SP), intent(in) :: ts  !<  rupture start time
-    real(SP), intent(in) :: tr  !<  rise time
+    real(SP), intent(in) :: srcprm(5)
+
+    real(SP) :: hertz_fmax   !<  maximum amplitude of source
+    real(SP) :: ts      !<  balldrop start time
+    real(SP) :: tc      !<  contact time of ball impact
+    real(SP) :: k_norm  !<  normalization factor for M0
 
     !! ----
 
-    if ( ts <= t .and. t <= ts + tr/2) then
-      triangle = 4 * ( t-ts ) / ( tr*tr )
-    else if ( ts + tr/2 < t .and. t <= ts + tr ) then
-      triangle = - 4 * ( t - ts - tr ) / ( tr * tr )
+    ts = srcprm(1)
+    tc = srcprm(3)
+    hertz_fmax = srcprm(4)
+    k_norm = srcprm(5)
+
+    if ( ts <= t .and. t <= ts + tc ) then
+      hertz = hertz_fmax*(sin(PI*(t-ts)/tc))**(3.0/2.0) / k_norm
     else
-      triangle = 0.0
+      hertz = 0.0
     end if
 
-  end function triangle
+  end function hertz
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 
   !! --------------------------------------------------------------------------------------------------------------------------- !!

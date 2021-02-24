@@ -778,8 +778,8 @@ contains
     !! additional parameters
     integer, intent(in)      :: io_prm
     real(SP) :: vp_rock, vs_rock, rho_rock
-    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0
-    real(SP) :: tc, fmax
+    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0, del1, del2
+    real(SP) :: tc, hertz_fmax
     real(SP) :: ga = 9.80665
     !! ----
 
@@ -813,7 +813,7 @@ contains
 
       !! define Hertz source parameter
       !! 2021.02.21 Kurama Okubo
-      case ( 'hertz' )
+      case ( 'he' )
 
         ! read source parameters
         ! sx, sy, sz: source location [km]
@@ -826,6 +826,11 @@ contains
         ! The rest of paramters for Hertz source are taken from the input.inf
         ! read( adum,*,iostat=ierr ) sx(i), sy(i), sz(i), sprm(1,i), sprm(2,i), fx(i), fy(i), fz(i)
         read( adum,*,iostat=ierr ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
+
+        ! debug
+        write(STDERR, * ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
+        !-------
+
         call assert( ierr == 0 )
         ! read material constants for rock block
         call readini( io_prm, 'vp_rock',   vp_rock, 6.919 )
@@ -845,26 +850,33 @@ contains
         v0 = sqrt(2*ga*h)
 
         ! debug
-        write(STDERR,*) v0, G_rock, nu_rock, E_rock
+        write(STDERR,*) "v0, G_rock, nu_rock, E_rock"
+        write(STDERR,*) v0, G2, nu2, E2
 
-        ! compute fmax and tc
+        ! compute hertz_fmax and tc
         del1 = (1-nu1**2)/(PI*E1)
         del2 = (1-nu2**2)/(PI*E2)
 
-        tc = 4.53*( 4*rho1 * PI * (del1 + del2) / 3 )**(2/5) * R1 * (v0**(-1/5))
-        fmax = 1.917 * (rho1**(3/5)) * ((del1 + del2)**(-2/5)) * (R1**2) * (v0**(6/5))
+        tc = 4.53*(( 4.0*rho1 * PI * (del1 + del2) / 3.0 )**(2.0/5.0)) * R1 * (v0**(-1.0/5.0))
+        hertz_fmax = 1.917 * (rho1**(3.0/5.0)) * ((del1 + del2)**(-2.0/5.0)) * (R1**2.0) * (v0**(6.0/5.0))
 
+        ! debug
+        write(STDERR, * ) del1, del2, rho1, R1, v0
+        write(STDERR, * ) "tc, fmax"
+        write(STDERR, * ) tc, hertz_fmax
+
+        !-------
         ! the scalling factor fz is approximated from the mathematical formulation of integral for f(t)
         ! this is used for the sake of numerical stability
         fx(i) = 0.0
         fy(i) = 0.0
-        fz(i) = 1.748038* fmax * tc / PI
+        fz(i) = 1.748038* hertz_fmax * tc / PI
 
         ! store values into sprm
         sprm(1,i) = T0 ! source origin time [s]
         sprm(2,i) = tc/2.0 ! rise time used at line 212 in this script to estimate fcut [s]
         sprm(3,i) = tc ! critical time for Hertz source [s]
-        sprm(4,i) = fmax ! maximum amplitude for Hertz source [N]
+        sprm(4,i) = hertz_fmax ! maximum amplitude for Hertz source [N]
         sprm(5,i) = fz(i) ! scaling factor
 
       case default
@@ -967,6 +979,9 @@ contains
     integer :: i, ii, jj, kk
     real(SP) :: t, stime
     !! ----
+    ! debug output
+    character(256)        :: fn_out
+    !! ----
 
     if( .not. bf_mode ) return
 
@@ -989,10 +1004,24 @@ contains
       Vz(kk  ,ii  ,jj  ) = Vz(kk  ,ii  ,jj  ) + bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
       Vz(kk-1,ii  ,jj  ) = Vz(kk-1,ii  ,jj  ) + bz(kk-1,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
 
-      ! debug
-      write(STDERR,*) 'check fz normalized:', fz(i)
+      !!--- debug output stf ---
+      ! This slows down computational speed due to file IO, so use only for debugging.
+      if( myid == 0 ) then
+        write(fn_out,'("./out/stf_",I0.3,".dat")') i
+
+        if (it == 1) then
+          open(11,file=fn_out, status='replace') ! renew stf output file
+          write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        else
+          open(11,file=fn_out, status="old", position="append", action="write")
+        end if
+        write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+        close(11)
+      end if
+      !!-------------------------
 
     end do
+
 
     call pwatch__off("source__bodyforce")
   end subroutine source__bodyforce
