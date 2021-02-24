@@ -99,9 +99,9 @@ contains
     !!
 
     !! Read parameters for balldrop model
-    call readini( io_prm, 'vp_rock',   vp_rock, 6.56 )
-    call readini( io_prm, 'vs_rock',   vs_rock, 3.7 )
-    call readini( io_prm, 'rho_rock',  rho_rock, 2.7 )
+    call readini( io_prm, 'vp_rock',   vp_rock, 6.919 )
+    call readini( io_prm, 'vs_rock',   vs_rock, 3.631 )
+    call readini( io_prm, 'rho_rock',  rho_rock, 2.98 )
     call readini( io_prm, 'qp0_rock',   qp0_rock,  1000000.0 )
     call readini( io_prm, 'qs0_rock',   qs0_rock,  1000000.0 )
 

@@ -134,7 +134,6 @@ contains
     case ( 'kupper'   );  n_stfprm = 2
     case ( 'cosine'   );  n_stfprm = 2
     case ( 'texp'     );  n_stfprm = 2
-    case ( 'hertz'    );  n_stfprm = 5
     end select
 
 
@@ -166,7 +165,7 @@ contains
     if( bf_mode ) then
 
       allocate( fx_g(nsrc_g), fy_g(nsrc_g), fz_g(nsrc_g) )
-      call source__grid_bodyforce(io_prm, fn_stf, stf_format, nsrc_g, n_stfprm, sx_g, sy_g, sz_g, fx_g, fy_g, fz_g, srcprm_g )
+      call source__grid_bodyforce( fn_stf, stf_format, nsrc_g, n_stfprm, sx_g, sy_g, sz_g, fx_g, fy_g, fz_g, srcprm_g )
 
     else
 
@@ -687,11 +686,13 @@ contains
         ! reverse sign
         myz(i) = -myz(i)
         mxy(i) = -mxy(i)
+
         call geomap__g2c( lon, lat, clon, clat, phi, sx(i), sy(i) )
 
         ! moment in dyn-cm
         M0tmp = sqrt( mxx(i)**2 + myy(i)**2 + mzz(i)**2 + 2 * ( mxz(i)**2 + myz(i)**2 + mxy(i)**2 ))/ sqrt(2.0)
         mo(i) = M0tmp * 10.**(iex)
+
         sprm(1,i) = 0.0
         ! 2 x (empirical half-duration) will be a rise time
         sprm(2,i) = 2 * 1.05 * 1e-8 * mo(i)**(1._dp/3._dp)
@@ -758,7 +759,7 @@ contains
   !!   - source control parameters sprm (nprm,ns)
   !<
   !! ----
-  subroutine source__grid_bodyforce(io_prm, fn_stf, stf_format, ns, nprm, sx, sy, sz, fx, fy, fz, sprm )
+  subroutine source__grid_bodyforce( fn_stf, stf_format, ns, nprm, sx, sy, sz, fx, fy, fz, sprm )
 
     character(*), intent(in) :: fn_stf
     character(*), intent(in) :: stf_format
@@ -774,13 +775,6 @@ contains
     integer :: ierr
     real(SP) :: mw
     character(2) :: stf_coord
-
-    !! additional parameters
-    integer, intent(in)      :: io_prm
-    real(SP) :: vp_rock, vs_rock, rho_rock
-    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0
-    real(SP) :: tc, fmax
-    real(SP) :: ga = 9.80665
     !! ----
 
     call std__getio( io )
@@ -810,62 +804,6 @@ contains
         call assert( -360. <= lon .and. lon <= 360 )
         call assert(  -90. <= lat .and. lat <=  90 )
         call geomap__g2c( lon, lat, clon, clat, phi, sx(i), sy(i) )
-
-      !! define Hertz source parameter
-      !! 2021.02.21 Kurama Okubo
-      case ( 'hertz' )
-
-        ! read source parameters
-        ! sx, sy, sz: source location [km]
-        ! T0: origin of time [s]
-        ! h: height of ball drop [m]
-        ! rho1: density of ball [kg/m3]
-        ! R1: radius of ball [m]
-        ! E1: Young's modulus of ball [Pa]
-        ! nu1: Poisson's ratio of ball
-        ! The rest of paramters for Hertz source are taken from the input.inf
-        ! read( adum,*,iostat=ierr ) sx(i), sy(i), sz(i), sprm(1,i), sprm(2,i), fx(i), fy(i), fz(i)
-        read( adum,*,iostat=ierr ) sx(i), sy(i), sz(i), T0, h, rho1, R1, E1, nu1
-        call assert( ierr == 0 )
-        ! read material constants for rock block
-        call readini( io_prm, 'vp_rock',   vp_rock, 6.919 )
-        call readini( io_prm, 'vs_rock',   vs_rock, 3.631 )
-        call readini( io_prm, 'rho_rock',  rho_rock, 2.98 )
-
-        !! The unit is converted here to kg/m3, m/s, Pa. The obtained fmax then has a unit of [N].
-        ! shear modulus of rock
-        G2 = (rho_rock*1e3) * ((vs_rock*1e3) **2) ![Pa]
-        ! poisson's ratio of rock
-        vpvs = vp_rock/vs_rock
-        nu2  = 0.5 * (((vpvs**2) - 2.0) / ((vpvs**2) - 1.0))
-        ! Young's modulus of rock
-        E2 = 2.0 * G2 * (1+nu2) ! [Pa]
-
-        ! Compute ball drop velocity from height
-        v0 = sqrt(2*ga*h)
-
-        ! debug
-        write(STDERR,*) v0, G_rock, nu_rock, E_rock
-
-        ! compute fmax and tc
-        del1 = (1-nu1**2)/(PI*E1)
-        del2 = (1-nu2**2)/(PI*E2)
-
-        tc = 4.53*( 4*rho1 * PI * (del1 + del2) / 3 )**(2/5) * R1 * (v0**(-1/5))
-        fmax = 1.917 * (rho1**(3/5)) * ((del1 + del2)**(-2/5)) * (R1**2) * (v0**(6/5))
-
-        ! the scalling factor fz is approximated from the mathematical formulation of integral for f(t)
-        ! this is used for the sake of numerical stability
-        fx(i) = 0.0
-        fy(i) = 0.0
-        fz(i) = 1.748038* fmax * tc / PI
-
-        ! store values into sprm
-        sprm(1,i) = T0 ! source origin time [s]
-        sprm(2,i) = tc/2.0 ! rise time used at line 212 in this script to estimate fcut [s]
-        sprm(3,i) = tc ! critical time for Hertz source [s]
-        sprm(4,i) = fmax ! maximum amplitude for Hertz source [N]
-        sprm(5,i) = fz(i) ! scaling factor
 
       case default
         call info( 'invalid source type' )
@@ -988,9 +926,6 @@ contains
       Vy(kk  ,ii  ,jj-1) = Vy(kk  ,ii  ,jj-1) + by(kk  ,ii  ,jj-1) * fy(i) * stime * dt_dxyz / 2
       Vz(kk  ,ii  ,jj  ) = Vz(kk  ,ii  ,jj  ) + bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
       Vz(kk-1,ii  ,jj  ) = Vz(kk-1,ii  ,jj  ) + bz(kk-1,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
-
-      ! debug
-      write(STDERR,*) 'check fz normalized:', fz(i)
 
     end do
 
@@ -1128,9 +1063,6 @@ contains
     tbeg   = srcprm(1)
     trise  = srcprm(2)
 
-    if( stftype=='hertz') then
-    end if
-
     select case ( trim(stftype) )
     case ( 'boxcar'   );  source__momentrate = boxcar   ( t, tbeg, trise )
     case ( 'triangle' );  source__momentrate = triangle ( t, tbeg, trise )
@@ -1138,7 +1070,6 @@ contains
     case ( 'kupper'   );  source__momentrate = kupper   ( t, tbeg, trise )
     case ( 'cosine'   );  source__momentrate = cosine   ( t, tbeg, trise )
     case ( 'texp'     );  source__momentrate = texp     ( t, tbeg, trise )
-    case ( 'hertz'    );  source__momentrate = hertz    ( t, srcprm ) ! added Hertzian source for ball-drop. 2021.02.19 Kurama Okubo
     case default;         source__momentrate = kupper   ( t, tbeg, trise )
     end select
 

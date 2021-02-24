@@ -32,12 +32,12 @@ contains
 !!$      is_rhomin_under = .false.
 !!$      return
 !!$    end if
-    
-    
+
+
     !! keep vp/vs ratio
     gamma = vp / vs
     if( gamma < epsilon(1.0) ) gamma = sqrt(3.)
-    
+
     !! velocity check
     if( vp > vmax .or. vs > vmax ) then
       is_vmax_over = .true.
@@ -534,32 +534,6 @@ contains
   end function herrmann
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 
-  !! --------------------------------------------------------------------------------------------------------------------------- !!
-  !>
-  !! The Herrmann function for moment rate
-  !!
-  !! 2021.02.19 implemeted by Kurama Okubo
-  !! This function have >0 value among ts <= t <= ts + tr for given start time ts and rise time tr
-  !! The amplitude is normalized by \int_0^\infty f(t) dt = 1
-  !<
-  real(SP) function triangle( t, ts, tr )
-
-    real(SP), intent(in) :: t   !<  time
-    real(SP), intent(in) :: ts  !<  rupture start time
-    real(SP), intent(in) :: tr  !<  rise time
-
-    !! ----
-
-    if ( ts <= t .and. t <= ts + tr/2) then
-      triangle = 4 * ( t-ts ) / ( tr*tr )
-    else if ( ts + tr/2 < t .and. t <= ts + tr ) then
-      triangle = - 4 * ( t - ts - tr ) / ( tr * tr )
-    else
-      triangle = 0.0
-    end if
-
-  end function triangle
-  !! --------------------------------------------------------------------------------------------------------------------------- !!
 
   !! --------------------------------------------------------------------------------------------------------------------------- !!
   !>
