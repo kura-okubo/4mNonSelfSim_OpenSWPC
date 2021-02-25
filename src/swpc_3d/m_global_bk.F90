@@ -516,8 +516,7 @@ contains
     !!
     !! packing buffer: j-direction
     !!
-    !!!!$omp parallel do private(ptr)
-    !$omp parallel do private(i, k, ptr)
+    !$omp parallel do private(ptr)
     do i=ibeg,iend
 #ifdef _ES
       !cdir nodep,nosync
@@ -629,8 +628,7 @@ contains
     !!
     !! packing buffer: i-direction ( Sxx, Sxy, Sxz )
     !!
-    !!!$omp parallel do private(i,k,ptr)
-    !$omp parallel do private(j,k,ptr)
+    !$omp parallel do private(i,k,ptr)
     do j=jbeg, jend
 #ifdef _ES
       !cdir nodep,nosync
@@ -662,8 +660,7 @@ contains
     !!
     !! packing buffer: j-direction ( Syy, Syz, Sxy )
     !!
-    !!!$omp parallel do private(ptr)
-    !$omp parallel do private(i,k,ptr)
+    !$omp parallel do private(ptr)
     do i=ibeg,iend
       !cdir nodep,nosync
       do k=kbeg,kend
