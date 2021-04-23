@@ -1006,18 +1006,20 @@ contains
 
       !!--- debug output stf ---
       ! This slows down computational speed due to file IO, so use only for debugging.
-      ! if( myid == 0 ) then
-      !   write(fn_out,'("./out/stf_",I0.3,".dat")') i
-      !
-      !   if (it == 1) then
-      !     open(11,file=fn_out, status='replace') ! renew stf output file
-      !     write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      !   else
-      !     open(11,file=fn_out, status="old", position="append", action="write")
-      !   end if
-      !   write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      !   close(11)
-      ! end if
+      if( myid == 0 ) then
+        write(fn_out,'("./out/stf_",I0.3,".dat")') i
+
+        if (it == 1) then
+          open(11,file=fn_out, status='replace') ! renew stf output file
+          ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+          write (11,*) "time, stf, M0, fz"
+        else
+          open(11,file=fn_out, status="old", position="append", action="write")
+        end if
+        ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+        write (11,'(1x, E20.8, 3(",", E20.8))') t, stime, M0, fz(i)
+        close(11)
+      end if
       !!-------------------------
 
     end do
