@@ -59,3 +59,6 @@ archives/*
 
 # build documents
 doc/site/*
+
+# build script
+src/runmake.sh
