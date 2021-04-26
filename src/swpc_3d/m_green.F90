@@ -69,6 +69,9 @@ module m_green
   real(SP), allocatable :: dxUx(:), dyUx(:), dzUx(:), dxUy(:), dyUy(:), dzUy(:), dxUz(:), dyUz(:), dzUz(:)
   real(SP), parameter :: green_tbeg = 0.0
   real(SP) :: green_trise
+
+  real(SP) :: green_hertz_srcprm(5)
+
   character :: green_cmp
   character(16) :: stftype
   logical :: green_pbmode
@@ -106,7 +109,16 @@ contains
     real(SP)       :: dd
     character(256) :: abuf
     real(SP)       :: evlo1, evla1
+
+    !! additional parameters for hertz source
+    real(SP) :: vp_rock, vs_rock, rho_rock
+    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0, del1, del2, fx, fy, fz
+    real(SP) :: tc, hertz_fmax
+    real(SP) :: ga = 9.80665
+    ! debug output
+    character(256)        :: fn_out
     !! ----
+
 
     if( benchmark_mode ) then
       green_mode = .false.
@@ -143,11 +155,8 @@ contains
     call readini( io_prm, 'green_cmp',  green_cmp,  '' )
     call readini( io_prm, 'green_trise', green_trise, 1.0 )
     call readini( io_prm, 'green_bforce', green_bforce, .false. )
-    call readini( io_prm, 'green_maxdist', green_maxdist, 1e30 )    
+    call readini( io_prm, 'green_maxdist', green_maxdist, 1e30 )
     call assert( green_maxdist > 0.0 )
-
-    M0 = 1
-    fmax = 2.0 / green_trise
 
     !! green's function output grid layout
     call readini( io_prm, 'fn_glst', fn_glst, '' )
@@ -159,9 +168,107 @@ contains
 
     call readini( io_prm, 'ntdec_w',ntdec_w, 10 )
     call readini( io_prm, 'stftype', stftype, 'kupper' )
-    call readini( io_prm, 'wav_format', wav_format, 'sac' ) 
+    call readini( io_prm, 'wav_format', wav_format, 'sac' )
 
     if( trim(adjustl(stftype)) == 'scosine' ) stftype = 'cosine'  !! backward compatibility
+
+    if( stftype=='hertz') then
+      ! compute source parameters similar with m_source.F90 l816-
+
+      ! sx, sy, sz: source location [km]
+      ! T0: origin of time [s]
+      ! h: height of ball drop [m]
+      ! rho1: density of ball [kg/m3]
+      ! R1: radius of ball [m]
+      ! E1: Young's modulus of ball [Pa]
+      ! nu1: Poisson's ratio of ball
+      ! The rest of paramters for Hertz source are taken from the input.inf
+      !-------
+
+      call assert( ierr == 0 )
+      ! read material constants for rock block
+      call readini( io_prm, 'vp_rock',   vp_rock, 6.919 )
+      call readini( io_prm, 'vs_rock',   vs_rock, 3.631 )
+      call readini( io_prm, 'rho_rock',  rho_rock, 2.98 )
+
+      ! read green hartzian source ball_drop parameters
+      call readini( io_prm, 'ghs_T0', T0, 0.0 )
+      call readini( io_prm, 'ghs_h', h, 0.5 )
+      call readini( io_prm, 'ghs_rho1', rho1, 7781.1 )
+      call readini( io_prm, 'ghs_R1', R1, 1.5e-3 )
+      call readini( io_prm, 'ghs_E1', E1, 208.795e9 )
+      call readini( io_prm, 'ghs_nu1', nu1, 0.286 )
+
+
+      !! The unit is converted here to kg/m3, m/s, Pa. The obtained fmax then has a unit of [N].
+      ! shear modulus of rock
+      G2 = (rho_rock*1e3) * ((vs_rock*1e3) **2) ![Pa]
+      ! poisson's ratio of rock
+      vpvs = vp_rock/vs_rock
+      nu2  = 0.5 * (((vpvs**2) - 2.0) / ((vpvs**2) - 1.0))
+      ! Young's modulus of rock
+      E2 = 2.0 * G2 * (1+nu2) ! [Pa]
+
+      ! Compute ball drop velocity from height
+      v0 = sqrt(2*ga*h)
+
+      ! debug
+      write(STDERR,*) "v0, G_rock, nu_rock, E_rock"
+      write(STDERR,*) v0, G2, nu2, E2
+
+      ! compute hertz_fmax and tc
+      del1 = (1-nu1**2)/(PI*E1)
+      del2 = (1-nu2**2)/(PI*E2)
+
+      tc = 4.53*(( 4.0*rho1 * PI * (del1 + del2) / 3.0 )**(2.0/5.0)) * R1 * (v0**(-1.0/5.0))
+      hertz_fmax = 1.917 * (rho1**(3.0/5.0)) * ((del1 + del2)**(-2.0/5.0)) * (R1**2.0) * (v0**(6.0/5.0))
+
+      ! debug
+      write(STDERR, * ) del1, del2, rho1, R1, v0
+      write(STDERR, * ) "tc, fmax"
+      write(STDERR, * ) tc, hertz_fmax
+
+      !-------
+      ! the scalling factor fz is approximated from the mathematical formulation of integral for f(t)
+      ! this is used for the sake of numerical stability
+      fx = 0.0
+      fy = 0.0
+      fz = 1.748038* hertz_fmax * tc / PI
+
+      ! store values into sprm
+      green_hertz_srcprm(1) = T0 ! source origin time [s]
+      green_hertz_srcprm(2) = tc/2.0 ! rise time used at line 212 in this script to estimate fcut [s]
+      green_hertz_srcprm(3) = tc ! critical time for Hertz source [s]
+      green_hertz_srcprm(4) = hertz_fmax ! maximum amplitude for Hertz source [N]
+      green_hertz_srcprm(5) = fz ! scaling factor
+
+      !M0 = fz
+      ! in Green's function mood, the M0 is not multiplied to the return value G, so M0=1 is fine.
+      ! We need to multiply M0 in post-process.
+      M0 = 1
+      !! currently assumes srcprm(2,:) indicates rise time
+      fcut = max( 0.0, 1/green_hertz_srcprm(2) )
+      fmax = 2 * fcut
+
+      !!--- debug output stf ---
+      ! This slows down computational speed due to file IO, so use only for debugging.
+      if( myid == 0 ) then
+        fn_out="./out/stf_greenstf_prm.dat"
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        write (11,*) "T0, tc, hertz_fmax, fz"
+        write (11,'(1x, E20.8, 3(",", E20.8))') T0, tc, hertz_fmax, fz
+        ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+        close(11)
+      end if
+      !!-------------------------
+
+    else
+      ! use default parameters
+      M0 = 1
+      fmax = 2.0 / green_trise
+    end if
+
+
 
     !!
     !! Set up pseudo source, information is obtained from m_output
@@ -604,7 +711,7 @@ contains
         call std__getio(io, is_big=.true.)
         open(io, file=trim(fn_wav), form='unformatted', action='write', status='replace')
 #else
-        call std__getio(io, is_big=.true.) 
+        call std__getio(io, is_big=.true.)
         open(io, file=trim(fn_wav), access='stream', form='unformatted', action='write', status='replace')
 #endif
 
@@ -631,6 +738,8 @@ contains
     real(SP) :: stf
     real(SP) :: t
     real(SP) :: fx, fy, fz
+    ! debug output
+    character(256) :: fn_out
 
     if( .not. green_mode ) return
     call pwatch__on( 'green__source' )
@@ -649,6 +758,7 @@ contains
     case ( 'herrmann' );  stf = herrmann ( t, green_tbeg, green_trise )
     case ( 'kupper'   );  stf = kupper   ( t, green_tbeg, green_trise )
     case ( 'cosine'   );  stf = cosine   ( t, green_tbeg, green_trise )
+    case ( 'hertz'   );   stf = hertz    ( t, green_hertz_srcprm ) ! added Hertzian source for ball-drop green's fun. 2021.04.26 Kurama Okubo
     case default;         stf = kupper   ( t, green_tbeg, green_trise )
     end select
 
@@ -665,6 +775,23 @@ contains
     Vz(ksrc  ,isrc  ,jsrc  ) = Vz(ksrc  ,isrc  ,jsrc  ) + bz(ksrc  ,isrc  ,jsrc  ) * fz / 2
     Vz(ksrc-1,isrc  ,jsrc  ) = Vz(ksrc-1,isrc  ,jsrc  ) + bz(ksrc-1,isrc  ,jsrc  ) * fz / 2
 
+    !!--- debug output stf ---
+    ! This slows down computational speed due to file IO, so use only for debugging.
+    if( myid == 0 ) then
+      fn_out = "./out/stf_greenstf.dat"
+
+      if (it == 1) then
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        write (11,*) "time, stf, M0, fz"
+      else
+        open(11,file=fn_out, status="old", position="append", action="write")
+      end if
+      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+      write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, green_hertz_srcprm(1), green_hertz_srcprm(5)
+      close(11)
+    end if
+    !!-------------------------
     call pwatch__off( 'green__source' )
 
   end subroutine green__source

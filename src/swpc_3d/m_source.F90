@@ -1159,9 +1159,6 @@ contains
     tbeg   = srcprm(1)
     trise  = srcprm(2)
 
-    if( stftype=='hertz') then
-    end if
-
     select case ( trim(stftype) )
     case ( 'boxcar'   );  source__momentrate = boxcar   ( t, tbeg, trise )
     case ( 'triangle' );  source__momentrate = triangle ( t, tbeg, trise )
