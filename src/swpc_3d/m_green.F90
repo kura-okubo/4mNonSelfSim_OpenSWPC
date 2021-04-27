@@ -112,7 +112,7 @@ contains
 
     !! additional parameters for hertz source
     real(SP) :: vp_rock, vs_rock, rho_rock
-    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0, del1, del2, fx, fy, fz
+    real(SP) :: T0, h, rho1, R1, E1, nu1, G2, E2, nu2, vpvs, v0, del1, del2, fx_hertz, fy_hertz, fz_hertz
     real(SP) :: tc, hertz_fmax
     real(SP) :: ga = 9.80665
     ! debug output
@@ -185,7 +185,6 @@ contains
       ! The rest of paramters for Hertz source are taken from the input.inf
       !-------
 
-      call assert( ierr == 0 )
       ! read material constants for rock block
       call readini( io_prm, 'vp_rock',   vp_rock, 6.919 )
       call readini( io_prm, 'vs_rock',   vs_rock, 3.631 )
@@ -231,16 +230,16 @@ contains
       !-------
       ! the scalling factor fz is approximated from the mathematical formulation of integral for f(t)
       ! this is used for the sake of numerical stability
-      fx = 0.0
-      fy = 0.0
-      fz = 1.748038* hertz_fmax * tc / PI
+      fx_hertz = 0.0
+      fy_hertz = 0.0
+      fz_hertz = 1.748038* hertz_fmax * tc / PI
 
       ! store values into sprm
       green_hertz_srcprm(1) = T0 ! source origin time [s]
       green_hertz_srcprm(2) = tc/2.0 ! rise time used at line 212 in this script to estimate fcut [s]
       green_hertz_srcprm(3) = tc ! critical time for Hertz source [s]
       green_hertz_srcprm(4) = hertz_fmax ! maximum amplitude for Hertz source [N]
-      green_hertz_srcprm(5) = fz ! scaling factor
+      green_hertz_srcprm(5) = fz_hertz ! scaling factor
 
       !M0 = fz
       ! in Green's function mood, the M0 is not multiplied to the return value G, so M0=1 is fine.
@@ -256,7 +255,7 @@ contains
         fn_out="./out/stf_greenstf_prm.dat"
         open(11,file=fn_out, status='replace') ! renew stf output file
         write (11,*) "T0, tc, hertz_fmax, fz"
-        write (11,'(1x, E20.8, 3(",", E20.8))') T0, tc, hertz_fmax, fz
+        write (11,'(1x, E20.8, 3(",", E20.8))') T0, tc, hertz_fmax, fz_hertz
         ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
         close(11)
       end if
@@ -775,6 +774,10 @@ contains
     Vz(ksrc  ,isrc  ,jsrc  ) = Vz(ksrc  ,isrc  ,jsrc  ) + bz(ksrc  ,isrc  ,jsrc  ) * fz / 2
     Vz(ksrc-1,isrc  ,jsrc  ) = Vz(ksrc-1,isrc  ,jsrc  ) + bz(ksrc-1,isrc  ,jsrc  ) * fz / 2
 
+    ! debug
+    ! write(STDOUT,*) fy, fy1, dt_dxyz, stf, Vy(ksrc  ,isrc  ,jsrc  )
+    ! write(STDOUT,*) ksrc, isrc, jsrc, Vy(ksrc  ,isrc  ,jsrc  )
+
     !!--- debug output stf ---
     ! This slows down computational speed due to file IO, so use only for debugging.
     if( myid == 0 ) then
@@ -788,7 +791,7 @@ contains
         open(11,file=fn_out, status="old", position="append", action="write")
       end if
       ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, green_hertz_srcprm(1), green_hertz_srcprm(5)
+      write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, M0, green_hertz_srcprm(5)
       close(11)
     end if
     !!-------------------------
