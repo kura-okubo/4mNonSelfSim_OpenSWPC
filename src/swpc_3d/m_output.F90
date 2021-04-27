@@ -2600,6 +2600,7 @@ contains
     integer,      intent(out) :: ist1, jst1, kst1 !< station location indices
     real(SP),     intent(out) :: xst1, yst1, zst1 !< station location coordinate
     real(SP),     intent(out) :: stlo1, stla1
+    real(SP),     :: xtmp, ytmp, ztmp
     !! --
     integer :: i
 
@@ -2619,6 +2620,13 @@ contains
         stlo1 = stlo(i)
         stla1 = stla(i)
         is_exist = .true.
+        ! debug of exact station loc for green's function
+        xtmp = i2x( i, xbeg, real(dx) )
+        ytmp = j2y( j, ybeg, real(dy) )
+        ztmp = k2z( k, zbeg, real(dz) )
+        write(STDERR, *) "debug: green's function source loc:"
+        write(STDERR, *) xtmp, ytmp, ztmp
+
         exit
       end if
     end do
