@@ -780,20 +780,21 @@ contains
 
     !!--- debug output stf ---
     ! This slows down computational speed due to file IO, so use only for debugging.
-    if( myid == 0 ) then
-      fn_out = "./out/stf_greenstf.dat"
+    ! This is applied only on the src mpi block
+    ! if( myid == 0 ) then
+    fn_out = "./out/stf_greenstf.dat"
 
-      if (it == 1) then
-        open(11,file=fn_out, status='replace') ! renew stf output file
-        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-        write (11,*) "time, stf, M0, fz"
-      else
-        open(11,file=fn_out, status="old", position="append", action="write")
-      end if
-      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, M0, green_hertz_srcprm(5)
-      close(11)
+    if (it == 1) then
+      open(11,file=fn_out, status='replace') ! renew stf output file
+      ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+      write (11,*) "time, stf, M0, fz"
+    else
+      open(11,file=fn_out, status="old", position="append", action="write")
     end if
+    ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+    write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, M0, green_hertz_srcprm(5)
+    close(11)
+    ! end if
     !!-------------------------
     call pwatch__off( 'green__source' )
 
