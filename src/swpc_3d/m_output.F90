@@ -2600,7 +2600,7 @@ contains
     integer,      intent(out) :: ist1, jst1, kst1 !< station location indices
     real(SP),     intent(out) :: xst1, yst1, zst1 !< station location coordinate
     real(SP),     intent(out) :: stlo1, stla1
-    real(SP),     :: xtmp, ytmp, ztmp
+    real(SP)      :: xtmp, ytmp, ztmp
     !! --
     integer :: i
 
