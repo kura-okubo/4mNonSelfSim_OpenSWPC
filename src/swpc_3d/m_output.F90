@@ -2621,9 +2621,9 @@ contains
         stla1 = stla(i)
         is_exist = .true.
         ! debug of exact station loc for green's function
-        xtmp = i2x( i, xbeg, real(dx) )
-        ytmp = j2y( j, ybeg, real(dy) )
-        ztmp = k2z( k, zbeg, real(dz) )
+        xtmp = i2x( ist1, xbeg, real(dx) )
+        ytmp = j2y( jst1, ybeg, real(dy) )
+        ztmp = k2z( kst1, zbeg, real(dz) )
         write(STDERR, *) "debug: green's function source loc:"
         write(STDERR, *) xtmp, ytmp, ztmp
 
