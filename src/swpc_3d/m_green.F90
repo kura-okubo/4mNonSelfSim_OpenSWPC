@@ -739,6 +739,7 @@ contains
     real(SP) :: fx, fy, fz
     ! debug output
     character(256) :: fn_out
+    ! real(SP) :: diff1, diff2, diff3
 
     if( .not. green_mode ) return
     call pwatch__on( 'green__source' )
@@ -782,19 +783,53 @@ contains
     ! This slows down computational speed due to file IO, so use only for debugging.
     ! This is applied only on the src mpi block
     ! if( myid == 0 ) then
-    fn_out = "./out/stf_greenstf.dat"
-
-    if (it == 1) then
-      open(11,file=fn_out, status='replace') ! renew stf output file
-      ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      write (11,*) "time, stf, M0, fz"
-    else
-      open(11,file=fn_out, status="old", position="append", action="write")
-    end if
-    ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-    write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, M0, green_hertz_srcprm(5)
-    close(11)
+    ! write(fn_out,'("./out/stf_green_",I0.3,".dat")') myid
+    !
+    ! if (it == 1) then
+    !   open(11,file=fn_out, status='replace') ! renew stf output file
+    !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+    !   write (11,*) "time, stf, M0, fz, dt_dxyz"
+    ! else
+    !   open(11,file=fn_out, status="old", position="append", action="write")
     ! end if
+    ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+    ! write (11,'(1x, E20.8, 3(",", E20.8))') t, stf, M0, green_hertz_srcprm(5), dt_dxyz
+    ! close(11)
+    ! ! end if
+    !
+    ! ! Output velocity history at source
+    ! write(fn_out,'("./out/Vysource_green_",I0.3,".dat")') myid
+    !
+    ! if (it == 1) then
+    !   open(11,file=fn_out, status='replace') ! renew stf output file
+    !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+    !   write (11,*) "time,kk,ii,jj,Vy1,Vy2,by1,by2, diff1, diff2"
+    ! else
+    !   open(11,file=fn_out, status="old", position="append", action="write")
+    ! end if
+    ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+    ! write (11,'(1x, E20.8, 3(",", I5), 2(",", E20.6)) ') t, ksrc, isrc, jsrc, by(ksrc  ,isrc  ,jsrc  ), by(ksrc  ,isrc  ,jsrc-1)
+    ! close(11)
+    !
+    ! ! Output velocity history at source 2
+    ! write(fn_out,'("./out/Vysource2_green_",I0.3,".dat")') myid
+    !
+    ! if (it == 1) then
+    !   open(11,file=fn_out, status='replace') ! renew stf output file
+    !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+    !   write (11,*) "time,Vx,Vy,Vz,bx,by,bz"
+    ! else
+    !   open(11,file=fn_out, status="old", position="append", action="write")
+    ! end if
+    !
+    ! diff1 = bx(ksrc  ,isrc  ,jsrc  ) * fx / 2
+    ! diff2 = by(ksrc  ,isrc  ,jsrc  ) * fy / 2
+    ! diff3 = bz(ksrc  ,isrc  ,jsrc  ) * fz / 2
+    !
+    ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+    ! write (11,'(1x, E20.8, 6(",", E20.6)) ') t, Vx(ksrc,isrc,jsrc), Vy(ksrc,isrc,jsrc), Vz(ksrc,isrc,jsrc), diff1, diff2, diff3
+    !
+    ! close(11)
     !!-------------------------
     call pwatch__off( 'green__source' )
 

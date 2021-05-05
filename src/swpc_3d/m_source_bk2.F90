@@ -871,8 +871,6 @@ contains
         fx(i) = 0.0
         fy(i) = 0.0
         fz(i) = 1.748038* hertz_fmax * tc / PI
-        ! fy(i) = -1.748038* hertz_fmax * tc / PI
-        ! fz(i) = 0.0
 
         ! store values into sprm
         sprm(1,i) = T0 ! source origin time [s]
@@ -880,7 +878,6 @@ contains
         sprm(3,i) = tc ! critical time for Hertz source [s]
         sprm(4,i) = hertz_fmax ! maximum amplitude for Hertz source [N]
         sprm(5,i) = fz(i) ! scaling factor
-        !sprm(5,i) = fy(i) ! scaling factor
 
       case default
         call info( 'invalid source type' )
@@ -984,7 +981,8 @@ contains
     !! ----
     ! debug output
     character(256)        :: fn_out
-    ! real(SP) :: diff1, diff2, diff3
+    real(SP) :: diff1, diff2, diff3
+
     !! ----
 
     if( .not. bf_mode ) return
@@ -1010,52 +1008,52 @@ contains
 
       !!--- debug output stf ---
       ! This slows down computational speed due to file IO, so use only for debugging.
-      ! write(fn_out,'("./out/stf_",I0.3,"_",I0.3,".dat")') i, myid
-      !
-      ! if (it == 1) then
-      !   open(11,file=fn_out, status='replace') ! renew stf output file
-      !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      !   write (11,*) "time, stf, M0, fz, dt_dxyz"
-      ! else
-      !   open(11,file=fn_out, status="old", position="append", action="write")
-      ! end if
-      ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      ! write (11,'(1x, E20.8, 3(",", E20.8))') t, stime, M0, fz(i), dt_dxyz
-      ! close(11)
-      !
-      ! ! Output velocity history at source
-      ! write(fn_out,'("./out/Vysource_",I0.3,"_",I0.3,".dat")') i, myid
-      !
-      ! if (it == 1) then
-      !   open(11,file=fn_out, status='replace') ! renew stf output file
-      !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      !   write (11,*) "time,kk,ii,jj,Vy1,Vy2,by1,by2"
-      ! else
-      !   open(11,file=fn_out, status="old", position="append", action="write")
-      ! end if
-      ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      ! write (11,'(1x, E20.8, 3(",", I5), 2(",", E20.6)) ') t, kk, ii, jj, by(kk  ,ii  ,jj), by(kk  ,ii  ,jj-1)
-      ! close(11)
-      !
-      ! write(fn_out,'("./out/Vysource2_",I0.3,"_",I0.3,".dat")') i, myid
-      !
-      ! if (it == 1) then
-      !   open(11,file=fn_out, status='replace') ! renew stf output file
-      !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      !   write (11,*) "time,Vx,Vy,Vz,bx,by,bz"
-      ! else
-      !   open(11,file=fn_out, status="old", position="append", action="write")
-      ! end if
-      ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      !
-      ! diff1 = bx(kk  ,ii  ,jj  ) * fx(i) * stime * dt_dxyz / 2
-      ! diff2 = by(kk  ,ii  ,jj  ) * fy(i) * stime * dt_dxyz / 2
-      ! diff3 = bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
-      !
-      ! write (11,'(1x, E20.8, 6(",", E20.6)) ') t, Vx(kk  ,ii  ,jj  ),Vy(kk  ,ii  ,jj  ), Vz(kk  ,ii  ,jj  ), diff1, diff2, diff3
-      !
-      ! close(11)
-      ! !-------------------------
+      write(fn_out,'("./out/stf_",I0.3,"_",I0.3,".dat")') i, myid
+
+      if (it == 1) then
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        write (11,*) "time, stf, M0, fz, dt_dxyz"
+      else
+        open(11,file=fn_out, status="old", position="append", action="write")
+      end if
+      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+      write (11,'(1x, E20.8, 3(",", E20.8))') t, stime, M0, fz(i), dt_dxyz
+      close(11)
+
+      ! Output velocity history at source
+      write(fn_out,'("./out/Vysource_",I0.3,"_",I0.3,".dat")') i, myid
+
+      if (it == 1) then
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        write (11,*) "time,kk,ii,jj,Vy1,Vy2,by1,by2"
+      else
+        open(11,file=fn_out, status="old", position="append", action="write")
+      end if
+      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+      write (11,'(1x, E20.8, 3(",", I5), 2(",", E20.6)) ') t, kk, ii, jj, by(kk  ,ii  ,jj), by(kk  ,ii  ,jj-1)
+      close(11)
+
+      write(fn_out,'("./out/Vysource2_",I0.3,"_",I0.3,".dat")') i, myid
+
+      if (it == 1) then
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        write (11,*) "time,Vx,Vy,Vz,bx,by,bz"
+      else
+        open(11,file=fn_out, status="old", position="append", action="write")
+      end if
+      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+
+      diff1 = bx(kk  ,ii  ,jj  ) * fx(i) * stime * dt_dxyz / 2
+      diff2 = by(kk  ,ii  ,jj  ) * fy(i) * stime * dt_dxyz / 2
+      diff3 = bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
+
+      write (11,'(1x, E20.8, 6(",", E20.6)) ') t, Vx(kk  ,ii  ,jj  ),Vy(kk  ,ii  ,jj  ), Vz(kk  ,ii  ,jj  ), diff1, diff2, diff3
+
+      close(11)
+      !-------------------------
     end do
 
 
