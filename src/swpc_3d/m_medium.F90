@@ -162,72 +162,76 @@ contains
     !!
     !! homogenize absorber region
     !!
-    do i=ibeg_m, na
-      !$omp parallel do private(j,k)
-      do j=jbeg_m,jend_m
-        do k=kbeg_m, kend_m
-          rho (k,i,j) = rho (k,na+1,j)
-          lam (k,i,j) = lam (k,na+1,j)
-          mu  (k,i,j) = mu  (k,na+1,j)
-          taup(k,i,j) = taup(k,na+1,j)
-          taus(k,i,j) = taus(k,na+1,j)
-        end do
-      end do
-      !$omp end parallel do
-    end do
-    do i=nx-na+1,iend_m
-      !$omp parallel do private(j,k)
-      do j=jbeg_m,jend_m
-        do k=kbeg_m, kend_m
-          rho (k,i,j) = rho (k,nx-na,j)
-          lam (k,i,j) = lam (k,nx-na,j)
-          mu  (k,i,j) = mu  (k,nx-na,j)
-          taup(k,i,j) = taup(k,nx-na,j)
-          taus(k,i,j) = taus(k,nx-na,j)
-        end do
-      end do
-      !$omp end parallel do
-    end do
-    do j=jbeg_m, na
-      !$omp parallel do private(i,k)
-      do i=ibeg_m,iend_m
-        do k=kbeg_m, kend_m
-          rho (k,i,j) = rho (k,i,na+1)
-          lam (k,i,j) = lam (k,i,na+1)
-          mu  (k,i,j) = mu  (k,i,na+1)
-          taup(k,i,j) = taup(k,i,na+1)
-          taus(k,i,j) = taus(k,i,na+1)
-        end do
-      end do
-      !$omp end parallel do
-    end do
-    do j=ny-na+1,jend_m
-      !$omp parallel do private(i,k)
-      do i=ibeg_m,iend_m
-        do k=kbeg_m, kend_m
-          rho (k,i,j) = rho (k,i,ny-na)
-          lam (k,i,j) = lam (k,i,ny-na)
-          mu  (k,i,j) = mu  (k,i,ny-na)
-          taup(k,i,j) = taup(k,i,ny-na)
-          taus(k,i,j) = taus(k,i,ny-na)
-        end do
-      end do
-      !$omp end parallel do
-    end do
 
-    !$omp parallel do private(i,j,k)
-    do j=jbeg_m,jend_m
-      do i=ibeg_m,iend_m
-        do k=nz-na+1,kend_m
-          rho (k,i,j) = rho (nz-na,i,j)
-          lam (k,i,j) = lam (nz-na,i,j)
-          mu  (k,i,j) = mu  (nz-na,i,j)
-          taup(k,i,j) = taup(nz-na,i,j)
-          taus(k,i,j) = taus(nz-na,i,j)
+    if ( trim(vmodel_type) /= 'balldropseg'  .and.  trim(vmodel_type) /= 'balldropseg_side') then
+      do i=ibeg_m, na
+        !$omp parallel do private(j,k)
+        do j=jbeg_m,jend_m
+          do k=kbeg_m, kend_m
+            rho (k,i,j) = rho (k,na+1,j)
+            lam (k,i,j) = lam (k,na+1,j)
+            mu  (k,i,j) = mu  (k,na+1,j)
+            taup(k,i,j) = taup(k,na+1,j)
+            taus(k,i,j) = taus(k,na+1,j)
+          end do
+        end do
+        !$omp end parallel do
+      end do
+      do i=nx-na+1,iend_m
+        !$omp parallel do private(j,k)
+        do j=jbeg_m,jend_m
+          do k=kbeg_m, kend_m
+            rho (k,i,j) = rho (k,nx-na,j)
+            lam (k,i,j) = lam (k,nx-na,j)
+            mu  (k,i,j) = mu  (k,nx-na,j)
+            taup(k,i,j) = taup(k,nx-na,j)
+            taus(k,i,j) = taus(k,nx-na,j)
+          end do
+        end do
+        !$omp end parallel do
+      end do
+      do j=jbeg_m, na
+        !$omp parallel do private(i,k)
+        do i=ibeg_m,iend_m
+          do k=kbeg_m, kend_m
+            rho (k,i,j) = rho (k,i,na+1)
+            lam (k,i,j) = lam (k,i,na+1)
+            mu  (k,i,j) = mu  (k,i,na+1)
+            taup(k,i,j) = taup(k,i,na+1)
+            taus(k,i,j) = taus(k,i,na+1)
+          end do
+        end do
+        !$omp end parallel do
+      end do
+      do j=ny-na+1,jend_m
+        !$omp parallel do private(i,k)
+        do i=ibeg_m,iend_m
+          do k=kbeg_m, kend_m
+            rho (k,i,j) = rho (k,i,ny-na)
+            lam (k,i,j) = lam (k,i,ny-na)
+            mu  (k,i,j) = mu  (k,i,ny-na)
+            taup(k,i,j) = taup(k,i,ny-na)
+            taus(k,i,j) = taus(k,i,ny-na)
+          end do
+        end do
+        !$omp end parallel do
+      end do
+
+      !$omp parallel do private(i,j,k)
+      do j=jbeg_m,jend_m
+        do i=ibeg_m,iend_m
+          do k=nz-na+1,kend_m
+            rho (k,i,j) = rho (nz-na,i,j)
+            lam (k,i,j) = lam (nz-na,i,j)
+            mu  (k,i,j) = mu  (nz-na,i,j)
+            taup(k,i,j) = taup(nz-na,i,j)
+            taus(k,i,j) = taus(nz-na,i,j)
+          end do
         end do
       end do
-    end do
-    !$omp end parallel do
+      !$omp end parallel do
+
+    end if
 
     !!
     !! Define visco-elastic medium by tau-method
