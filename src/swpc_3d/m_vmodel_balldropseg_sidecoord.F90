@@ -133,16 +133,16 @@ contains
           if( zc(k) < 0 .or. zc(k) > balldrop_w ) then
             !! this is outside of medium, assign the air column
             rho(k,i,j) = 0.001
-            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
-            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            mu (k,i,j) = rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
             qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
           else if (yc( j ) > balldrop_h+balldrop_hm) then
             !! this is air under the bottom metal plate
             rho(k,i,j) = 0.001
-            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
-            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            mu (k,i,j) = rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
             qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
@@ -157,8 +157,8 @@ contains
             ! if (xc(i) < -balldrop_lm .or. xc(i) > balldrop_l + balldrop_lm) then
             !   !! this is air outside of the side metal plates
             !   rho(k,i,j) = 0.001
-            !   mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
-            !   lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            !   mu (k,i,j) = rho(k,i,j) * vs1 * vs1
+            !   lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
             !   qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             !   qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             ! else
@@ -182,8 +182,8 @@ contains
             ! if (xc(i) < -balldrop_lm  .or. xc(i) > balldrop_l + balldrop_lm) then
             !   !! this is air outside of the side metal plates
             !   rho(k,i,j) = 0.001
-            !   mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
-            !   lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            !   mu (k,i,j) = rho(k,i,j) * vs1 * vs1
+            !   lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
             !   qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             !   qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
@@ -207,8 +207,8 @@ contains
           else
             ! this is middle top air column
             rho(k,i,j) = 0.001
-            mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
-            lam(k,i,j) = 0.0 ! rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
+            mu (k,i,j) = rho(k,i,j) * vs1 * vs1
+            lam(k,i,j) = rho(k,i,j) * ( vp1*vp1 - 2*vs1*vs1 )
             qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
           endif
