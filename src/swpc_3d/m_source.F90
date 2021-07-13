@@ -880,7 +880,7 @@ contains
         sprm(3,i) = tc ! critical time for Hertz source [s]
         sprm(4,i) = hertz_fmax ! maximum amplitude for Hertz source [N]
         sprm(5,i) = fz(i) ! scaling factor
-        !sprm(5,i) = fy(i) ! scaling factor
+        !sprm(5,i) = abs(fy(i)) ! scaling factor
 
       case default
         call info( 'invalid source type' )
