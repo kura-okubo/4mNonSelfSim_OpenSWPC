@@ -26,6 +26,7 @@ module m_medium
   use m_vmodel_balldrop_rmed
   use m_vmodel_balldropseg
   use m_vmodel_balldropseg_sidecoord
+  use m_vmodel_biax_sidecoord
 
   implicit none
   private
@@ -150,6 +151,9 @@ contains
             rho, lam, mu, taup, taus, bddep )
       case ( 'balldropseg_side' )
         call vmodel_balldropseg_sidecoord( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
+            rho, lam, mu, taup, taus, bddep )
+      case ( 'biax_side' )
+        call vmodel_biax_sidecoord( io_prm, ibeg_m, iend_m, jbeg_m, jend_m, kbeg_m, kend_m, xc, yc, zc, vcut, &
             rho, lam, mu, taup, taus, bddep )
       case default
         call assert( .false. )
