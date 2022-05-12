@@ -139,7 +139,7 @@ contains
             qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
-          else if (yc( j ) > balldrop_h/2.0+balldrop_hm) then
+          else if (yc( j ) > balldrop_h+balldrop_hm) then
             !! this is air under the bottom metal plate
             rho(k,i,j) = 0.001
             mu (k,i,j) = 0.0 ! rho(k,i,j) * vs1 * vs1
@@ -147,7 +147,7 @@ contains
             qp (k,i,j) = 10.0 ! artificially strong attenuation in air-column
             qs (k,i,j) = 10.0 ! artificially strong attenuation in air-column
 
-          else if (yc( j ) > balldrop_h/2.0) then
+          else if (yc( j ) > balldrop_h) then
             !! this is bottom metal plate
             rho(k,i,j) = rho_metal
             mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal
@@ -155,7 +155,7 @@ contains
             qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
             qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
 
-          else if (yc( j ) <= balldrop_h/2.0 .and. yc( j ) >= -balldrop_h/2.0) then
+          else if (yc( j ) <= balldrop_h .and. yc( j ) >= -balldrop_h) then
 
             !! this is rock sample
             rho(k,i,j) = rho_rock
@@ -164,7 +164,7 @@ contains
             qp (k,i,j) = qp0_rock ! artificially strong attenuation in air-column
             qs (k,i,j) = qs0_rock ! artificially strong attenuation in air-column
 
-          else if (yc( j ) > -balldrop_h/2.0 - balldrop_htm) then
+          else if (yc( j ) > -balldrop_h - balldrop_htm) then
             !! this is top metal plate
             rho(k,i,j) = rho_metal
             mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal

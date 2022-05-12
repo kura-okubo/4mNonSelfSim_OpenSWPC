@@ -167,7 +167,9 @@ contains
     !! homogenize absorber region
     !!
 
-    if ( trim(vmodel_type) /= 'balldropseg'  .and.  trim(vmodel_type) /= 'balldropseg_side') then
+    if ( trim(vmodel_type) /= 'balldropseg'  .and.  trim(vmodel_type) /= 'balldropseg_side' &
+         .and.  trim(vmodel_type) /= 'biax_side') then
+
       do i=ibeg_m, na
         !$omp parallel do private(j,k)
         do j=jbeg_m,jend_m
