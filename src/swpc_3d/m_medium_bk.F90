@@ -55,7 +55,7 @@ contains
     integer  :: i, j, k
     real(SP) :: zeta
     real(SP) :: vcut
-    !!character(16) :: vmodel_type # move to global parameter
+    character(16) :: vmodel_type
     logical :: is_stabilize_pml
 
     call pwatch__on("medium__setup")
@@ -268,12 +268,7 @@ contains
     !!
     !! Free surface & Ocean bottom
     !!
-
-    if ( trim(vmodel_type) == 'balldropseg_side' .or. trim(vmodel_type) == 'biax_side') then
-      call surface_detection_BIAX()
-    else
-      call surface_detection()
-    end if
+    call surface_detection()
 
     !!
     !! global min/max of velocity for stability check
@@ -487,169 +482,40 @@ contains
 
       ! debug 2022-06-27 Kurama Okubo
       ! output the coordinates of kfs_top, kfs_bot, kob_top, kob_bot
-      !! updated 2022-11-08 comment out for the output of files; turn on when the model is small, otherwise it takes long time.
+      open(11,file='./out/debug_surface_coord_kfs_top.dat', status='replace')
+      open(12,file='./out/debug_surface_coord_kfs_bot.dat', status='replace')
+      open(13,file='./out/debug_surface_coord_kob_top.dat', status='replace')
+      open(14,file='./out/debug_surface_coord_kob_bot.dat', status='replace')
+      open(15,file='./out/debug_surface_coord_kfs.dat', status='replace')
+      open(16,file='./out/debug_surface_coord_kob.dat', status='replace')
 
-      ! open(11,file='./out/debug_surface_coord_kfs_top.dat', status='replace')
-      ! open(12,file='./out/debug_surface_coord_kfs_bot.dat', status='replace')
-      ! open(13,file='./out/debug_surface_coord_kob_top.dat', status='replace')
-      ! open(14,file='./out/debug_surface_coord_kob_bot.dat', status='replace')
-      ! open(15,file='./out/debug_surface_coord_kfs.dat', status='replace')
-      ! open(16,file='./out/debug_surface_coord_kob.dat', status='replace')
-      !
-      ! write (11,*) "x, y, z"
-      ! write (12,*) "x, y, z"
-      ! write (13,*) "x, y, z"
-      ! write (14,*) "x, y, z"
-      ! write (15,*) "x, y, z"
-      ! write (16,*) "x, y, z"
-      !
-      ! write(*, *) ibeg_m, iend_m, jbeg_m, jend_m, ibeg, iend, jbeg, jend
-      !
-      ! do j=jbeg_m, jend_m
-      !   do i=ibeg_m, iend_m
-      !     write (11,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_top(i,j)), i, j, kfs_top(i,j)
-      !     write (12,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_bot(i,j)), i, j, kfs_bot(i,j)
-      !     write (13,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob_top(i,j)), i, j, kob_top(i,j)
-      !     write (14,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob_bot(i,j)), i, j, kob_bot(i,j)
-      !     write (15,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs(i,j)), i, j, kfs(i,j)
-      !     write (16,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob(i,j)), i, j, kob(i,j)
-      !   end do
-      ! end do
-      !
-      ! close(11)
-      ! close(12)
-      ! close(13)
-      ! close(14)
-      ! close(15)
-      ! close(16)
+      write (11,*) "x, y, z"
+      write (12,*) "x, y, z"
+      write (13,*) "x, y, z"
+      write (14,*) "x, y, z"
+      write (15,*) "x, y, z"
+      write (16,*) "x, y, z"
+
+      do j=jbeg, jend
+        do i=ibeg, iend
+          write (11,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_top(i,j)), i, j, kfs_top(i,j)
+          write (12,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_bot(i,j)), i, j, kfs_bot(i,j)
+          write (13,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob_top(i,j)), i, j, kob_top(i,j)
+          write (14,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob_bot(i,j)), i, j, kob_bot(i,j)
+          write (15,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs(i,j)), i, j, kfs(i,j)
+          write (16,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kob(i,j)), i, j, kob(i,j)
+        end do
+      end do
+
+      close(11)
+      close(12)
+      close(13)
+      close(14)
+      close(15)
+      close(16)
 
     end subroutine surface_detection
     !! ------------------------------------------------------------------------------------------------------------------------ !!
-
-    !! ------------------------------------------------------------------------------------------------------------------------ !!
-    !! free surface boundaries for BIAX model
-    !! 2022/06/27 Kurama Okubo
-    !! Method of detection
-    !! We allocate two arrays as follows:
-    !! kfs_biax_upper : k index of upper (top) surface of rock specimen
-    !! kfs_biax_lower : k index of lower (bottom) surface of rock specimen
-    !! Then, compute the following indices
-    !! kfs_biax_upper_top : top boundary of the upper surface like kfs_top
-    !! kfs_biax_upper_bot : bottom boundary of the upper surface like kfs_bot
-    !! kfs_biax_lower_top : top boundary of the lower surface
-    !! kfs_biax_lower_bot : bottom boundary of the lower surface
-    !!
-    !! The side edges are handled as the bound bwtween kfs_biax_upper_top and kfs_biax_lower_bot.
-    !! We first modify the top and side surfaces between kfs_biax_upper_top and kfs_biax_lower_bot with the
-    !! condition that k < kfs_biax_upper_bot, then correct the bottom surface with kfs_biax_lower_top and kfs_biax_lower_bot.
-    !! We allocate no corrections of 2nd order computation on the outside of surfaces and edges such that
-    !! e.g. kfs_biax_upper_top = kend+4, kfs_biax_upper_bot = kend+3.
-    !!     or kfs_biax_lower_top = kend+2, kfs_biax_lower_bot = kend+1
-    !!
-    subroutine surface_detection_BIAX
-
-      real(SP) :: epsl = epsilon(1.0)
-      integer  :: i, j, k
-
-      !!
-      !! initial value
-      !! This initial settings implies there is NO free surface boundary in the interior medium
-      !!
-      kfs_biax_upper(:,:) = kend
-      kfs_biax_lower(:,:) = kend
-
-      !!
-      !! Detect free surfaces as material interface
-      !! kfs, kob must be defined ibeg-1:iend+2, jbeg-1:jend+2 to detect (kfs|kob)_top/bot .
-      !!
-      !$omp parallel do private(i,j,k)
-      do j=jbeg-3, jend+3
-        do i=ibeg-3, iend+3
-          do k=kbeg, kend-1
-
-            !! air-to-solid boundary top
-            if( abs(mu (k,i,j)) < epsl .and. abs(mu (k+1,i,j)) > epsl ) then
-              kfs_biax_upper(i,j) = k
-            end if
-
-            !! solid-to-air boundary bottom
-            if( abs(mu (k,i,j)) > epsl .and. abs(mu (k+1,i,j)) < epsl ) then
-              kfs_biax_lower(i,j) = k
-            end if
-
-          end do
-        end do
-      end do
-      !$omp end parallel do
-
-      !!
-      !! define 2nd-order derivative area #2013-00419
-      !! updated (stable) version: 2015-08-18
-      !! updated for biax model: 2022-06-27
-      !$omp parallel do private(i,j,k)
-      do j=jbeg, jend
-        do i=ibeg, iend
-
-          ! for symmetric margin of the edges, we assign from i-3 to i+3
-          kfs_biax_upper_top(i, j) = minval( kfs_biax_upper(i-3:i+3,j-3:j+3) ) - 2
-          kfs_biax_upper_bot(i, j) = maxval( kfs_biax_upper(i-3:i+3,j-3:j+3) ) + 2
-          kfs_biax_lower_top(i, j) = maxval( kfs_biax_lower(i-3:i+3,j-3:j+3) ) - 2
-          kfs_biax_lower_bot(i, j) = minval( kfs_biax_lower(i-3:i+3,j-3:j+3) ) + 2
-
-          ! correct the value outside of the surfaces and edges
-          if (kfs_biax_upper_top(i, j) == kend-2) kfs_biax_upper_top(i, j) = kend+4
-          if (kfs_biax_upper_bot(i, j) == kend+2) kfs_biax_upper_bot(i, j) = kend+3
-          if (kfs_biax_lower_top(i, j) == kend-2) kfs_biax_lower_top(i, j) = kend+2
-          if (kfs_biax_lower_bot(i, j) == kend+2) kfs_biax_lower_bot(i, j) = kend+1
-
-        end do
-      end do
-
-      !$omp end parallel do
-
-      ! debug 2022-06-27 Kurama Okubo
-      ! output the coordinates of kfs_top, kfs_bot, kob_top, kob_bot
-      !! updated 2022-11-08 comment out for the output of files; turn on when the model is small, otherwise it takes long time.
-
-      ! open(11,file='./out/kfs_biax_upper.dat', status='replace')
-      ! open(12,file='./out/kfs_biax_lower.dat', status='replace')
-      ! open(13,file='./out/kfs_biax_upper_top.dat', status='replace')
-      ! open(14,file='./out/kfs_biax_upper_bot.dat', status='replace')
-      ! open(15,file='./out/kfs_biax_lower_top.dat', status='replace')
-      ! open(16,file='./out/kfs_biax_lower_bot.dat', status='replace')
-      !
-      ! write (11,*) "x, y, z, ix, iy, iz"
-      ! write (12,*) "x, y, z, ix, iy, iz"
-      ! write (13,*) "x, y, z, ix, iy, iz"
-      ! write (14,*) "x, y, z, ix, iy, iz"
-      ! write (15,*) "x, y, z, ix, iy, iz"
-      ! write (16,*) "x, y, z, ix, iy, iz"
-
-      ! write(*, *) ibeg_m, iend_m, jbeg_m, jend_m
-      !
-      ! do j=jbeg_m, jend_m
-      !   do i=ibeg_m, iend_m
-      !     write (11,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper(i,j)), i, j, kfs_biax_upper(i,j)
-      !     write (12,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower(i,j)), i, j, kfs_biax_lower(i,j)
-      !     write (13,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_top(i,j)), &
-      !                                                                         i, j, kfs_biax_upper_top(i,j)
-      !     write (14,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_bot(i,j)), &
-      !                                                                         i, j, kfs_biax_upper_bot(i,j)
-      !     write (15,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_top(i,j)), &
-      !                                                                         i, j, kfs_biax_lower_top(i,j)
-      !     write (16,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_bot(i,j)), &
-      !                                                                         i, j, kfs_biax_lower_bot(i,j)
-      !   end do
-      ! end do
-      !
-      ! close(11)
-      ! close(12)
-      ! close(13)
-      ! close(14)
-      ! close(15)
-      ! close(16)
-
-    end subroutine surface_detection_BIAX
 
     !! ------------------------------------------------------------------------------------------------------------------------ !!
     !! maximum & minimum velocities
@@ -759,13 +625,6 @@ contains
     allocate( kob_top(                 ibeg_m:iend_m, jbeg_m:jend_m ) )
     allocate( kob_bot(                 ibeg_m:iend_m, jbeg_m:jend_m ) )
     allocate( bddep  (                 ibeg_m:iend_m, jbeg_m:jend_m, 0:NBD ) ) !! 0: topo, 1-2: discontinuity
-    !allocate for the surface detection of BIAX model
-    allocate( kfs_biax_upper(ibeg_m:iend_m, jbeg_m:jend_m))
-    allocate( kfs_biax_lower(ibeg_m:iend_m, jbeg_m:jend_m))
-    allocate( kfs_biax_upper_top(ibeg_m:iend_m, jbeg_m:jend_m))
-    allocate( kfs_biax_upper_bot(ibeg_m:iend_m, jbeg_m:jend_m))
-    allocate( kfs_biax_lower_top(ibeg_m:iend_m, jbeg_m:jend_m))
-    allocate( kfs_biax_lower_bot(ibeg_m:iend_m, jbeg_m:jend_m))
     if( nm > 0 ) allocate( ts(  1:nm ) )
 
   end subroutine memory_allocate

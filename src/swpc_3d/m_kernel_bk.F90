@@ -119,21 +119,10 @@ contains
 
     integer :: i, j, k
     real(MP) :: d3Sx3(kbeg_k:kend_k), d3Sy3(kbeg_k:kend_k), d3Sz3(kbeg_k:kend_k)
-
-    ! debug for surface detection (2022/09/20 Kurama Okubo)
-    logical :: file_exists
     !! ----
 
     call pwatch__on("kernel__update_vel")
 
-    ! write(*, *) vmodel_type
-    ! debug for the surface correction (2022/09/20 Kurama Okubo)
-    INQUIRE(file="./out/debug_update_vel_correctnodes.dat", exist=file_exists)
-    ! write(*,*) file_exists
-    if (.not. file_exists) then
-      open(21,file='./out/debug_update_vel_correctnodes.dat', status='replace')
-      write (21,*) "x, y, z"
-    endif
 
     !$omp parallel &
     !$omp private( d3Sx3, d3Sy3, d3Sz3 ) &
@@ -167,92 +156,41 @@ contains
                    + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r40z  -  (  Szz(k+2,i  ,j  ) - Szz(k-1,i  ,j  )  ) * r41z
         end do
 
-        if ( trim(vmodel_type) == 'balldropseg_side' .or. trim(vmodel_type) == 'biax_side') then
-          ! write(*,*) 'test', vmodel_type
-          !! overwrite around top and side surfaces
-          !! Updated 2022/09/20 Kurama Okubo
-          do k=kfs_biax_upper_top(i,j), kfs_biax_lower_bot(i,j)
-            if ( k < kfs_biax_upper_bot(i,j) ) then
-              d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
-                       + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
-                       + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
-
-              d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
-                       + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
-                       + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
-
-              d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
-                       + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
-                       + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
-
-              if (.not. file_exists) then
-                write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
-              endif
-
-            endif
-
-          end do
-
-          !! overwrite around the bottom surface assoicated with kfs_biax_lower
-          !! Updated 2022/09/20 Kurama Okubo
-          do k=kfs_biax_lower_top(i,j), kfs_biax_lower_bot(i,j)
-            d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
-                     + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
-                     + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
-
-            d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
-                     + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
-                     + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
-
-            d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
-                     + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
-                     + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
-
-            if (.not. file_exists) then
-              write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
-            endif
-
-          end do
-
-        else
-                  !! standard overwriting on free surface and seafloor
-                  !! overwrite around free surface
+        !! overwrite around free surface
 #ifdef _ES
         !CDIR NOVECTOR
 #endif
-                  do k=kfs_top(i,j), kfs_bot(i,j)
-                    d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
-                             + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
-                             + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
+        do k=kfs_top(i,j), kfs_bot(i,j)
+          d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
+                   + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
+                   + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
 
-                    d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
-                             + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
-                             + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
+          d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
+                   + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
+                   + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
 
-                    d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
-                             + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
-                             + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
-                  end do
+          d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
+                   + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
+                   + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
+        end do
 
-                  !! overwrite around seafloor
+        !! overwrite around seafloor
 #ifdef _ES
         !CDIR NOVECTOR
 #endif
-                  do k=kob_top(i,j), kob_bot(i,j)
-                    d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
-                             + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
-                             + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
+        do k=kob_top(i,j), kob_bot(i,j)
+          d3Sx3(k) = (  Sxx(k  ,i+1,j  ) - Sxx(k  ,i  ,j  )  ) * r20x  &
+                   + (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i  ,j-1)  ) * r20y  &
+                   + (  Sxz(k  ,i  ,j  ) - Sxz(k-1,i  ,j  )  ) * r20z
 
-                    d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
-                             + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
-                             + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
+          d3Sy3(k) = (  Sxy(k  ,i  ,j  ) - Sxy(k  ,i-1,j  )  ) * r20x  &
+                   + (  Syy(k  ,i  ,j+1) - Syy(k  ,i  ,j  )  ) * r20y  &
+                   + (  Syz(k  ,i  ,j  ) - Syz(k-1,i  ,j  )  ) * r20z
 
-                    d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
-                             + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
-                             + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
-                  end do
-
-        end if
+          d3Sz3(k) = (  Sxz(k  ,i  ,j  ) - Sxz(k  ,i-1,j  )  ) * r20x  &
+                   + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
+                   + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
+        end do
 
         !!
         !! update velocity
@@ -270,11 +208,6 @@ contains
     !$omp end parallel
 
     !$omp barrier
-
-
-    if (.not. file_exists) then
-      close(21)
-    endif
 
     call pwatch__off("kernel__update_vel")
 
@@ -443,36 +376,6 @@ contains
                        + (  Vy(k+1,i  ,j  ) - Vy(k  ,i  ,j  )  ) * r40z  -  (  Vy(k+2,i  ,j  ) - Vy(k-1,i  ,j  )  ) * r41z
         end do
 
-      if ( trim(vmodel_type) == 'balldropseg_side' .or. trim(vmodel_type) == 'biax_side') then
-        !! overwrite around top and side surfaces
-        !! Updated 2022/09/30 Kurama Okubo
-
-        do k=kfs_biax_upper_top(i,j), kfs_biax_lower_bot(i,j)
-          if ( k < kfs_biax_upper_bot(i,j) ) then
-
-          dxVy_dyVx(k) = (  Vy(k  ,i+1,j  ) - Vy(k  ,i  ,j  )  ) * r20x  &
-                       + (  Vx(k  ,i  ,j+1) - Vx(k  ,i  ,j  )  ) * r20y
-          dxVz_dzVx(k) = (  Vz(k  ,i+1,j  ) - Vz(k  ,i  ,j  )  ) * r20x  &
-                       + (  Vx(k+1,i  ,j  ) - Vx(k  ,i  ,j  )  ) * r20z
-          dyVz_dzVy(k) = (  Vz(k  ,i  ,j+1) - Vz(k  ,i  ,j  )  ) * r20y  &
-                       + (  Vy(k+1,i  ,j  ) - Vy(k  ,i  ,j  )  ) * r20z
-          endif
-        end do
-
-        !! overwrite around the bottom surface assoicated with kfs_biax_lower
-        !! Updated 2022/09/20 Kurama Okubo
-        do k=kfs_biax_lower_top(i,j), kfs_biax_lower_bot(i,j)
-
-          dxVy_dyVx(k) = (  Vy(k  ,i+1,j  ) - Vy(k  ,i  ,j  )  ) * r20x  &
-                       + (  Vx(k  ,i  ,j+1) - Vx(k  ,i  ,j  )  ) * r20y
-          dxVz_dzVx(k) = (  Vz(k  ,i+1,j  ) - Vz(k  ,i  ,j  )  ) * r20x  &
-                       + (  Vx(k+1,i  ,j  ) - Vx(k  ,i  ,j  )  ) * r20z
-          dyVz_dzVy(k) = (  Vz(k  ,i  ,j+1) - Vz(k  ,i  ,j  )  ) * r20y  &
-                       + (  Vy(k+1,i  ,j  ) - Vy(k  ,i  ,j  )  ) * r20z
-
-        end do
-
-      else
         !! overwrite around free surface
 #ifdef _ES
         !CDIR NOVECTOR
@@ -503,7 +406,7 @@ contains
 
         end do
 
-      end if
+
         !!
         !! update memory variables and stress tensors: shear stress components
         !!

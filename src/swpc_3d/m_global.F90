@@ -88,6 +88,9 @@ module m_global
   real(SP)              :: fmax                                     !<  maximum frequency by the source
   real(SP)              :: fcut                                     !<  cut-off frequency by the source
 
+  !! vmodel_type to share in m_medium.F90 and m_kernel.F90
+  character(16)         :: vmodel_type                              !<  name of the velocity model
+
   !!
   !! MPI domain
   !!
@@ -137,6 +140,11 @@ module m_global
   integer,  allocatable :: kfs_top(:,:), kfs_bot(:,:)               !<  region in which 2nd-order FDM is applied for free surface
   integer,  allocatable :: kob_top(:,:), kob_bot(:,:)               !<  region in which 2nd-order FDM is applied for ocean bottom
   real(SP), allocatable :: bddep(:,:,:)                             !<  boundary depth in physical coordinate
+
+  !! free surface for BIAX model
+  integer,  allocatable :: kfs_biax_upper(:,:), kfs_biax_lower(:,:)     !<  free surface depth grid in the node for BIAX model
+  integer,  allocatable :: kfs_biax_upper_top(:,:), kfs_biax_upper_bot(:,:)  !<  region in which 2nd-order FDM is applied for free surface: upper
+  integer,  allocatable :: kfs_biax_lower_top(:,:), kfs_biax_lower_bot(:,:)  !<  region in which 2nd-order FDM is applied for free surface: lower
 
   !!
   !! map coordinate: use dummy value for cartesian problem
