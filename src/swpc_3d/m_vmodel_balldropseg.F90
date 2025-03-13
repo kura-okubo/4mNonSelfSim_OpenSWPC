@@ -193,15 +193,15 @@ contains
             !   rho(k,i,j) = rho_metal
             !   mu (k,i,j) = rho(k,i,j) * vs_metal * vs_metal ! rho(k,i,j) * vs_rock * vs_rock
             !   lam(k,i,j) = rho(k,i,j) * ( vp_metal*vp_metal - 2*vs_metal*vs_metal ) ! rho(k,i,j) * ( vp_rock*vp_rock - 2*vs_rock*vs_rock )
-            !   qp (k,i,j) = qp0_metal ! artificially strong attenuation in air-column
-            !   qs (k,i,j) = qs0_metal ! artificially strong attenuation in air-column
+            !   qp (k,i,j) = qp0_metal
+            !   qs (k,i,j) = qs0_metal
             ! else
             !   !! this is rock sample
             !   rho(k,i,j) = rho_rock
             !   mu (k,i,j) = rho(k,i,j) * vs_rock * vs_rock ! rho(k,i,j) * vs_rock * vs_rock
             !   lam(k,i,j) = rho(k,i,j) * ( vp_rock*vp_rock - 2*vs_rock*vs_rock ) ! rho(k,i,j) * ( vp_rock*vp_rock - 2*vs_rock*vs_rock )
-            !   qp (k,i,j) = qp0_rock ! artificially strong attenuation in air-column
-            !   qs (k,i,j) = qs0_rock ! artificially strong attenuation in air-column
+            !   qp (k,i,j) = qp0_rock
+            !   qs (k,i,j) = qs0_rock
             ! end if
 
           else

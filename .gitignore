@@ -18,7 +18,7 @@
 in/*
 out/*
 *.snp
-*.sac
+# *.sac
 *.ps
 *.tim
 *.ppm
@@ -26,7 +26,7 @@ out/*
 *.mpg
 *.mp4
 *.ps
-*.nc
+# *.nc
 fort.*
 .gmt*
 gmt.*
@@ -62,3 +62,12 @@ doc/site/*
 
 # build script
 src/runmake.sh
+
+*.ai
+*.eps
+.ipynb_checkpoints
+.DS_Store
+__pycache__
+
+cross-verification/code/*.tgz
+cross-verification/code/PROGRAMS.330

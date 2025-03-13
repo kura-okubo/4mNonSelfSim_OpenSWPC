@@ -1,0 +1,6 @@
+# bf mode for 4m biaxial rock friction experiments balldrop impact
+# Reference: [1] McLaskey, G. C. and Glaser, S. D. Acoustic Emission Sensor Calibration for Absolute Source Measurements. J. Nondestruct. Eval., 31(2):157--168, 2012, doi:10.1007/s10921-012-0131-2.
+# sx(i), sy(i), sz(i), T0[s], h [m], rho1[kg/m3], R1 [m], E1 [Pa], nu1 
+# loc x, loc y, loc z, start time, drop height, density of ball, radius of ball, Young's Modulus of ball, Poisson's ratio of ball
+# --------------------------------------------------------------------------------------------
+0.0 100e-6 1.0e-6 0.0 0.5 7758.8 1.0e-3 208.197e9 0.286

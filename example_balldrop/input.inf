@@ -1,0 +1,223 @@
+                                                           !! -*- mode:f90 -*-
+
+  !! ----------------------------------------------------------------------- !!
+  !!
+  !!  SWPC input file
+  !!
+  !! ----------------------------------------------------------------------- !!
+
+
+  !! ----------------------------------------------------------------------- !!
+  !! Control
+  !!
+
+  title            = 'example_balldrop'           !! exe title: used for output filenames
+  odir             = './out'          !! output directory
+  ntdec_r          = 100            !! screen report timing (1/cycle)
+  strict_mode      = .false.          !! all parameters to be explicitly definied
+
+  !! ----------------------------------------------------------------------- !!
+  !! Model/Grid Size and Area
+  !!
+
+  nproc_x          = 1                !! parallelization in x-dir
+  nproc_y          = 1                !! parallelization in y-dir
+  nx               = 200          !! total grid number in x-dir
+  ny               = 110           !! total grid number in y-dir
+  nz               = 60         !! total grid number in z-dir
+  nt               = 1000 !! time step number
+
+  !! total_l = 800[mm] lseg
+  !! total_h = 550[mm] aht + h + hm + ahb
+  !! total_w = 120[mm] 2*ahw + w
+
+  dx               = 2.0e-6   !! grid width in x-dir
+  dy               = 2.0e-6   !! grid width in y-dir
+  dz               = 2.0e-6   !! grid width in z-dir
+  dt               = 1.0e-7              !! time step width (if not valid, too high velocity is caused.)
+
+  vcut             = 1.5              !! minimum velocity
+                                      !- smaller velocities will be increased
+
+  !! xbeg should be half of fault length for ball drop model
+  xbeg             = -200e-6 !!total_l/2 !! minimum in x-dir
+
+  !! Y beg at shifted origin
+  ybeg             = -10e-6              !! minimum in y-dir
+
+  !! zbeg should be -aht for ball drop model
+  zbeg             = -10e-6              !! minimum in z-dir
+
+  tbeg             = 0.0              !! start time
+
+  clon             = 139.7604         ! Dummy; not used !! center longitude
+  clat             = 35.7182          ! Dummy; not used !! center latitude
+  phi              = 0.0              ! Dummy; not used !! horizontal coordinate rotation
+                                      !- measured clockwise from the north
+
+  fq_min           = 1e4 !!1e4           !! minimum freq. for Q-constant model
+  fq_max           = 1e6 !!200000           !! maximum freq. for Q-constant model
+  fq_ref           = 1e5 !!1e5              !! ref. freq. for physical dispersion
+
+  fullspace_mode   = .false.          !! no ground surface, only for 2D codes
+
+  !! ----------------------------------------------------------------------- !!
+  !! Snapshot Output
+  !!
+
+  snp_format       = 'netcdf'         !! snapshot format (native or netcdf)
+
+  xy_ps%sw         = .false.          !! P&S amp. for xy section
+  xz_ps%sw         = .false.           !! P&S amp. for xz section
+  yz_ps%sw         = .false.          !! P&S amp. for yz section
+  fs_ps%sw         = .false.          !! P&S amp. for free surface
+  ob_ps%sw         = .false.           !! P&S amp. for ocean bottom
+
+  xy_v%sw          = .true.          !! 3-comp. velocity for xy section
+  xz_v%sw          = .true.           !! 3-comp. velocity for xz section
+  yz_v%sw          = .true.          !! 3-comp. velocity for yz section
+  fs_v%sw          = .false.          !! 3-comp. velocity for free surface
+  ob_v%sw          = .false.           !! 3-comp. velocity for ocean bottom
+
+  xy_u%sw          = .false.          !! 3-comp. disp. for xy section
+  xz_u%sw          = .false.           !! 3-comp. disp. for xz section
+  yz_u%sw          = .false.          !! 3-comp. disp. for yz section
+  fs_u%sw          = .false.          !! 3-comp. disp. for free surface
+  ob_u%sw          = .false.          !! 3-comp. disp. for ocean bottom
+
+
+  z0_xy            =  20.0e-6 !!0.0      !! depth for xy cross section
+  x0_yz            =  50.e-6                !! x-value for yz cross section
+  y0_xz            =  50.0e-6           !! y-value for xz cross section
+
+  ntdec_s          = 10                 !! time decimation of snapshot
+                                        !- (specify >1)
+  idec             = 1 !2                !! x-decimation for snapshot
+  jdec             = 1 !2                !! y-decimation for snapshot
+  kdec             = 1 !2                !! z-decimation for snapshot
+
+  !! ----------------------------------------------------------------------- !!
+  !! Waveform Output
+  !!
+
+  sw_wav_v         = .true.           !! velocity trace output at stations
+  sw_wav_u         = .true.          !! displacement trace output at stations
+  sw_wav_stress    = .false.           !! stress tensor trace
+  sw_wav_strain    = .false.           !! strain tansor trace
+  ntdec_w          = 1                !! time decimation of waveform output
+  st_format        = 'xy'             !! station format: 'xy' or 'll'
+  fn_stloc         = './stloc.xy'     !! station location file
+  wav_format       = 'sac'            !! 'sac' or 'csf'
+  wav_calc_dist    = .true.          !! Calculate epicentral distance
+
+  !! --------------------------------------------------------------------- !!
+  !! Body force source mode
+  !!
+
+  bf_mode          = .true.
+  stf_format       = 'he' !! 'he' for hertz source
+  stftype          = 'hertz' !!
+  fn_stf           = "./source_4m_hertz.dat"   !! Source grid file name
+  sdep_fit         = 'asis'
+
+  !stf_format       = 'xy' !! 'he' for hertz source
+  !stftype          = 'cosine' !! Hertzian impact
+  !fn_stf           = "./source_4m_hertz.dat"   !! Source grid file name
+  !sdep_fit         = 'asis'
+
+  !! --------------------------------------------------------------------- !!
+  !! Plane wave source mode
+  !!
+  pw_mode          = .false.   !! plane wave input. neglects fn_stf
+  pw_ztop          = 100.      !! top z-coordinate of the initial plane wave
+  pw_zlen          = 30.       !! wavelength of the initial plane wave
+  pw_ps            = 'p'       !! 'p' P-wave 's' S-wave
+  pw_strike        = 0.0       !! strike direction of plane wave (deg.)
+  pw_dip           = 0.0       !! dip of plane wave (deg.)
+  pw_rake          = 0.0       !! rake of plane S-wave polarization (deg.)
+
+  !! ----------------------------------------------------------------------- !!
+  !! Absorbing Boundary Condition
+  !!
+
+  abc_type         = 'pml'            !! 'pml' or 'cerjan'
+  na               = 5               !! absorbing layer thickness
+  stabilize_pml    = .true.           !! avoid low-v layer in PML region
+
+  !! ----------------------------------------------------------------------- !!
+  !! Velocity model
+  !!
+
+  vmodel_type      = 'balldropseg_side'    !! velocity model type 'uni'/'grd'/'lhm'
+  is_ocean         = .false.          !! topography z<0 is covered by ocean
+  is_flatten       = .false.          !! Force topography variation to zero
+
+  !! --------------------------------------------------------------------- !!
+  !! For 4m bar Balldrop model
+  !!
+
+  !! parameters for rock sample
+  vp_rock   = 6.2
+  vs_rock   = 3.6
+  rho_rock  = 2.98
+  qp0_rock  = 200 !100
+  qs0_rock  = 80  !100
+
+  !! parameters for metal
+  vp_metal  = 5.90
+  vs_metal  = 3.23
+  rho_metal = 7.85
+  qp0_metal = 100000
+  qs0_metal = 100000
+
+  !! parameters for boundaries
+
+  balldrop_w          = 100.0e-6 ! [km] width of rock
+  balldrop_h          = 200.0e-6 ! [km] hight of rock
+  balldrop_hm          = 0.0 !20.0e-6 ! [km] tickness of bottom metal plate
+
+  fn_model         = './out/modelparameter.nc'
+
+  dir_rmed         = './'
+  fn_rmed0         = 'fb_rand.nc'
+  rhomin           = 2.0                 !! minimum density threshold
+
+  !! ----------------------------------------------------------------------- !!
+  !! Checkpoint/Restart
+  !!
+  is_ckp           = .false.          !! perform checkpoint/restart
+  ckpdir           = './out/ckp'      !! output directory
+  ckp_interval     = 1000000          !! interval for checkpoint check（1/cycle）
+  ckp_time         = 1000000.         !! checkpoint time
+  ckp_seq          = .true.           !! sequential output mode
+
+  !! ----------------------------------------------------------------------- !!
+  !! Reciprocity Green's Function Mode
+  !!
+  green_mode       = .false.          !! reciprocity Green's function mode
+  green_stnm       = 'S00'           !! virtual station name from fn_stlst
+  green_cmp        = 'z'             !! virtual source direction 'x', 'y', 'z'
+  green_trise      = 5.0e-6             !! rise time of green source
+  green_bforce     = .false.         !! also calc. body force Green's function
+  green_maxdist    = 1000.0e-6       !! horizontal limit of source grid
+  green_fmt        = 'xyz'           !! list file format: 'xyz' or 'llz'
+  fn_glst          = "./green_in_AEevent_biax.txt"   !! Green's function grid point list
+
+  !! Parameters of ball drop for green's function mode with hertzian source
+  !!ghs_T0           = 0.0             !! source time offset [s]
+  !!ghs_h            = 0.5             !! height of ball drop [m]
+  !!ghs_rho1         = 7781.1          !! density of ball [kg/m3]
+  !!ghs_R1           = 1.5e-3          !! radius of ball [m]
+  !!ghs_E1           = 208.795e9       !! Young's modulus of ball
+  !!ghs_nu1          = 0.286           !! Poisson's ratio
+
+  !! ----------------------------------------------------------------------- !!
+  !! MISC
+  !!
+
+  stopwatch_mode   = .false.          !! measure computation time at routines
+  benchmark_mode   = .false.          !! benchmark mode
+
+  ipad             = 0                !! memory padding size for tuning
+  jpad             = 0                !! memory padding size for tuning
+  kpad             = 0                !! memory padding size for tuning

@@ -128,12 +128,12 @@ contains
 
     ! write(*, *) vmodel_type
     ! debug for the surface correction (2022/09/20 Kurama Okubo)
-    INQUIRE(file="./out/debug_update_vel_correctnodes.dat", exist=file_exists)
+    ! INQUIRE(file="./out/debug_update_vel_correctnodes.dat", exist=file_exists)
     ! write(*,*) file_exists
-    if (.not. file_exists) then
-      open(21,file='./out/debug_update_vel_correctnodes.dat', status='replace')
-      write (21,*) "x, y, z"
-    endif
+    ! if (.not. file_exists) then
+    !  open(21,file='./out/debug_21update_vel_correctnodes.dat', status='replace')
+    !  write (21,*) "x, y, z"
+    ! endif
 
     !$omp parallel &
     !$omp private( d3Sx3, d3Sy3, d3Sz3 ) &
@@ -185,9 +185,9 @@ contains
                        + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
                        + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
 
-              if (.not. file_exists) then
-                write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
-              endif
+              ! if (.not. file_exists) then
+              !   write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
+              ! endif
 
             endif
 
@@ -208,9 +208,9 @@ contains
                      + (  Syz(k  ,i  ,j  ) - Syz(k  ,i  ,j-1)  ) * r20y  &
                      + (  Szz(k+1,i  ,j  ) - Szz(k  ,i  ,j  )  ) * r20z
 
-            if (.not. file_exists) then
-              write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
-            endif
+            ! if (.not. file_exists) then
+            !   write (21,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(k), i, j, k
+            ! endif
 
           end do
 
@@ -262,6 +262,10 @@ contains
           Vx(k,i,j) = Vx(k,i,j) + bx(k,i,j) * d3Sx3(k) * dt
           Vy(k,i,j) = Vy(k,i,j) + by(k,i,j) * d3Sy3(k) * dt
           Vz(k,i,j) = Vz(k,i,j) + bz(k,i,j) * d3Sz3(k) * dt
+
+          ! if ( Vz(k,i,j) > 1.0 ) then
+          !   write(*, *) Vz(k,i,j)
+          ! end if 
 
         end do
       end do
@@ -573,15 +577,30 @@ contains
     ymax = 0.0
     zmax = 0.0
 
-    !! avoid nearby the absorbing boundary
-    do j=max(na+margin+1,jbeg_k), min(ny-na-margin, jend_k)
-      do i=max(na+margin+1,ibeg_k), min(ny-na-margin, iend_k)
-        xmax = max( xmax, real( abs( vx(kob(i,j)+1,i,j) ) ) )
-        ymax = max( ymax, real( abs( vy(kob(i,j)+1,i,j) ) ) )
-        zmax = max( zmax, real( abs( vz(kob(i,j)+1,i,j) ) ) )
+    if ( trim(vmodel_type) == 'balldropseg_side' .or. trim(vmodel_type) == 'biax_side') then
+      !! avoid nearby the absorbing boundary
+      ! write(*,*) na, margin, jbeg_k, ny, na, iend_k, nx
+      ! write(*,*) max(na+margin+1,jbeg_k), min(ny-na-margin, jend_k)
+      ! write(*,*) max(na+margin+1,ibeg_k), min(nx-na-margin, iend_k)
+      do j=max(na+margin+1,jbeg_k), min(ny-na-margin, jend_k)
+        do i=max(na+margin+1,ibeg_k), min(nx-na-margin, iend_k)
+          xmax = max( xmax, real( abs( vx(kfs_biax_upper_bot(i,j)+1,i,j) ) ) )
+          ymax = max( ymax, real( abs( vy(kfs_biax_upper_bot(i,j)+1,i,j) ) ) )
+          zmax = max( zmax, real( abs( vz(kfs_biax_upper_bot(i,j)+1,i,j) ) ) )
+          ! write(*, *) i, j, kfs_biax_upper_bot(i,j), xmax, ymax, zmax
+        end do
       end do
-    end do
-
+    else
+      !! avoid nearby the absorbing boundary
+      do j=max(na+margin+1,jbeg_k), min(ny-na-margin, jend_k)
+        do i=max(na+margin+1,ibeg_k), min(nx-na-margin, iend_k)
+          xmax = max( xmax, real( abs( vx(kob(i,j)+1,i,j) ) ) )
+          ymax = max( ymax, real( abs( vy(kob(i,j)+1,i,j) ) ) )
+          zmax = max( zmax, real( abs( vz(kob(i,j)+1,i,j) ) ) )
+          ! write(*, *) kob(i,j), xmax, ymax, zmax
+        end do
+      end do
+    end if
   end subroutine kernel__vmax
   !! --------------------------------------------------------------------------------------------------------------------------- !!
 

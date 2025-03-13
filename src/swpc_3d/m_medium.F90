@@ -609,45 +609,45 @@ contains
 
       ! debug 2022-06-27 Kurama Okubo
       ! output the coordinates of kfs_top, kfs_bot, kob_top, kob_bot
-      !! updated 2022-11-08 comment out for the output of files; turn on when the model is small, otherwise it takes long time.
+      ! updated 2022-11-08 comment out for the output of files; turn on when the model is small, otherwise it takes long time.
 
-      ! open(11,file='./out/kfs_biax_upper.dat', status='replace')
-      ! open(12,file='./out/kfs_biax_lower.dat', status='replace')
-      ! open(13,file='./out/kfs_biax_upper_top.dat', status='replace')
-      ! open(14,file='./out/kfs_biax_upper_bot.dat', status='replace')
-      ! open(15,file='./out/kfs_biax_lower_top.dat', status='replace')
-      ! open(16,file='./out/kfs_biax_lower_bot.dat', status='replace')
-      !
-      ! write (11,*) "x, y, z, ix, iy, iz"
-      ! write (12,*) "x, y, z, ix, iy, iz"
-      ! write (13,*) "x, y, z, ix, iy, iz"
-      ! write (14,*) "x, y, z, ix, iy, iz"
-      ! write (15,*) "x, y, z, ix, iy, iz"
-      ! write (16,*) "x, y, z, ix, iy, iz"
+      open(11,file='./out/kfs_biax_upper.dat', status='replace')
+      open(12,file='./out/kfs_biax_lower.dat', status='replace')
+      open(13,file='./out/kfs_biax_upper_top.dat', status='replace')
+      open(14,file='./out/kfs_biax_upper_bot.dat', status='replace')
+      open(15,file='./out/kfs_biax_lower_top.dat', status='replace')
+      open(16,file='./out/kfs_biax_lower_bot.dat', status='replace')
+      
+      write (11,*) "x, y, z, ix, iy, iz"
+      write (12,*) "x, y, z, ix, iy, iz"
+      write (13,*) "x, y, z, ix, iy, iz"
+      write (14,*) "x, y, z, ix, iy, iz"
+      write (15,*) "x, y, z, ix, iy, iz"
+      write (16,*) "x, y, z, ix, iy, iz"
 
       ! write(*, *) ibeg_m, iend_m, jbeg_m, jend_m
-      !
-      ! do j=jbeg_m, jend_m
-      !   do i=ibeg_m, iend_m
-      !     write (11,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper(i,j)), i, j, kfs_biax_upper(i,j)
-      !     write (12,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower(i,j)), i, j, kfs_biax_lower(i,j)
-      !     write (13,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_top(i,j)), &
-      !                                                                         i, j, kfs_biax_upper_top(i,j)
-      !     write (14,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_bot(i,j)), &
-      !                                                                         i, j, kfs_biax_upper_bot(i,j)
-      !     write (15,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_top(i,j)), &
-      !                                                                         i, j, kfs_biax_lower_top(i,j)
-      !     write (16,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_bot(i,j)), &
-      !                                                                         i, j, kfs_biax_lower_bot(i,j)
-      !   end do
-      ! end do
-      !
-      ! close(11)
-      ! close(12)
-      ! close(13)
-      ! close(14)
-      ! close(15)
-      ! close(16)
+      
+      do j=jbeg_m, jend_m
+        do i=ibeg_m, iend_m
+          write (11,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper(i,j)), i, j, kfs_biax_upper(i,j)
+          write (12,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower(i,j)), i, j, kfs_biax_lower(i,j)
+          write (13,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_top(i,j)), &
+                                                                              i, j, kfs_biax_upper_top(i,j)
+          write (14,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_upper_bot(i,j)), &
+                                                                              i, j, kfs_biax_upper_bot(i,j)
+          write (15,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_top(i,j)), &
+                                                                              i, j, kfs_biax_lower_top(i,j)
+          write (16,'(1x, E20.8, 2(",", E20.8), 3(",", I8))')  xc(i), yc(j), zc(kfs_biax_lower_bot(i,j)), &
+                                                                              i, j, kfs_biax_lower_bot(i,j)
+        end do
+      end do
+      
+      close(11)
+      close(12)
+      close(13)
+      close(14)
+      close(15)
+      close(16)
 
     end subroutine surface_detection_BIAX
 

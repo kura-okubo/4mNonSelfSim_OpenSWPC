@@ -234,7 +234,7 @@ contains
       js_g(i) = y2j( sy_g(i), ybeg, real(dy) )
       ks_g(i) = z2k( sz_g(i), zbeg, real(dz) )
 
-
+      ! write(*, *) is_g(i), js_g(i), ks_g(i), ibeg, jbeg, kbeg
       !! Count-up source grid *including sleeve area* so that it works even if the source grid is near MPI node boundary
       if( ibeg - 2 <= is_g(i) .and. is_g(i) <= iend + 3 .and. &
           jbeg - 2 <= js_g(i) .and. js_g(i) <= jend + 3 .and. &
@@ -247,6 +247,7 @@ contains
       end if
     end do
 
+    ! write(*, *) nsrc, nsrc_g
 
     !!
     !! memory allocation for source grids inside the node
@@ -1010,24 +1011,24 @@ contains
       Vz(kk  ,ii  ,jj  ) = Vz(kk  ,ii  ,jj  ) + bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
       Vz(kk-1,ii  ,jj  ) = Vz(kk-1,ii  ,jj  ) + bz(kk-1,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
 
-      !!--- debug output stf ---
-      ! This slows down computational speed due to file IO, so use only for debugging.
-      ! write(fn_out,'("./out/stf_",I0.3,"_",I0.3,".dat")') i, myid
-      !
-      ! if (it == 1) then
-      !   open(11,file=fn_out, status='replace') ! renew stf output file
-      !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
-      !   write (11,*) "time, stf, M0, fz, dt_dxyz"
-      ! else
-      !   open(11,file=fn_out, status="old", position="append", action="write")
-      ! end if
-      ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      ! write (11,'(1x, E20.8, 3(",", E20.8))') t, stime, M0, fz(i), dt_dxyz
-      ! close(11)
-      !
+      ! !--- debug output stf ---
+      ! ! This slows down computational speed due to file IO, so use only for debugging.
+      write(fn_out,'("./out/stf_",I0.3,"_",I0.3,".dat")') i, myid
+      ! ! write(*, *) fn_out
+      if (it == 1) then
+        open(11,file=fn_out, status='replace') ! renew stf output file
+        ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
+        write (11,*) "time, stf, M0, fz, dt_dxyz"
+      else
+        open(11,file=fn_out, status="old", position="append", action="write")
+      end if
+      ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
+      write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, M0, fz(i), dt_dxyz
+      close(11)
+      
       ! ! Output velocity history at source
       ! write(fn_out,'("./out/Vysource_",I0.3,"_",I0.3,".dat")') i, myid
-      !
+      
       ! if (it == 1) then
       !   open(11,file=fn_out, status='replace') ! renew stf output file
       !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
@@ -1038,9 +1039,9 @@ contains
       ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
       ! write (11,'(1x, E20.8, 3(",", I5), 2(",", E20.6)) ') t, kk, ii, jj, by(kk  ,ii  ,jj), by(kk  ,ii  ,jj-1)
       ! close(11)
-      !
+      
       ! write(fn_out,'("./out/Vysource2_",I0.3,"_",I0.3,".dat")') i, myid
-      !
+      
       ! if (it == 1) then
       !   open(11,file=fn_out, status='replace') ! renew stf output file
       !   ! write (11,*) "time, stf, stf_origin, scalingfactor, fz"
@@ -1049,15 +1050,15 @@ contains
       !   open(11,file=fn_out, status="old", position="append", action="write")
       ! end if
       ! ! write (11,'(1x, E20.8, 4(",", E20.8))') t, stime, stime*srcprm(5,i), srcprm(5,i), fz(i)
-      !
+      
       ! diff1 = bx(kk  ,ii  ,jj  ) * fx(i) * stime * dt_dxyz / 2
       ! diff2 = by(kk  ,ii  ,jj  ) * fy(i) * stime * dt_dxyz / 2
       ! diff3 = bz(kk  ,ii  ,jj  ) * fz(i) * stime * dt_dxyz / 2
-      !
+      
       ! write (11,'(1x, E20.8, 6(",", E20.6)) ') t, Vx(kk  ,ii  ,jj  ),Vy(kk  ,ii  ,jj  ), Vz(kk  ,ii  ,jj  ), diff1, diff2, diff3
-      !
+      
       ! close(11)
-      ! !-------------------------
+      !-------------------------
     end do
 
 
