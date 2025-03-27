@@ -63,6 +63,7 @@ doc/site/*
 # build script
 src/runmake.sh
 
+bk_*
 *.ai
 *.eps
 .ipynb_checkpoints
