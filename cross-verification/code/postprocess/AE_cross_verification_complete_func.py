@@ -81,11 +81,18 @@ def stf_herzian_mclaskey2009(t, rho, R, v, E1, nu1, E2, nu2):
 
 def compute_synthetic_waveform_vz_openswpc(M0hat, mij, st_syn_sta):
     """
-    compute synthesized waveform
-    
-    M0hat = sqrt(2) x M0, where the M0 is the true seismic moment, which radiates the vz.
-    We can confirm [(\sum M0hat mij)/(2)]^(1/2) = M0. (see e.g., Jost and Herrmann 1989 eq. 20)
+    Compute the synthesized waveform.
+
+    The seismic moment estimate M0hat is defined as M0hat = sqrt(2) × M0, where M0 is the true seismic moment. 
+    The modeled waveform is computed using M0hat (refer to the original software documentation for details). 
+
+    We can verify that the following relation holds: 
+
+        [\sum (M0hat * mij)^2 / 2]^(1/2) = M0 
+
+    (see Jost and Herrmann, 1989, Eq. 20).
     """
+
     if len(st_syn_sta) != 6:
         warnings.warn("number of green's tensor is not 6.") 
     Gzxx = st_syn_sta.select(channel="G_Vz_mxx")[0].data
