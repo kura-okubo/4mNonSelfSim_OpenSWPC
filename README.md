@@ -4,12 +4,10 @@ This repository includes an extended version of the FDM-based software [**OpenSW
 
 ## Contents
 
-1. Minimum working example for ball-drop source: [**example_balldrop**](example_balldrop) <a href="https://github.com/kura-okubo/4mNonSelfSim_OpenSWPC/blob/develop/example_balldrop/example_balldrop_result.ipynb" target="_blank">
-          <img src="https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.png" style="display: inline-block; width: 109px; height: 20px; vertical-align: middle;">
-        </a>. 
+1. Minimum working example for ball-drop source: [**example_balldrop**](example_balldrop) <br><a href="https://nbviewer.org/github/kura-okubo/4mNonSelfSim_OpenSWPC/blob/develop/example_balldrop/example_balldrop_result.ipynb" target="_blank"><img src="https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.png" alt="nbviewer" style="width: 109px; height: 20px; vertical-align: text-bottom;"></a>.
 
-2. Cross-verification of the extended software: [**cross-verification**](cross-verification) <a href="https://github.com/kura-okubo/4mNonSelfSim_OpenSWPC/blob/develop/cross-verification/code/postprocess/cross_verification_comparison_master.ipynb" target="_blank">
-          <img src="https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.png" style="display: inline-block; width: 109px; height: 20px; vertical-align: middle;">
+2. Cross-verification of the extended software: [**cross-verification**](cross-verification) <br> <a href="https://nbviewer.org/github/kura-okubo/4mNonSelfSim_OpenSWPC/blob/develop/cross-verification/code/postprocess/cross_verification_comparison_master.ipynb" target="_blank">
+          <img src="https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.png" style="width: 109px; height: 20px;">
         </a>.
 
 >This extended software was developed for the analysis of [non-self-similar laboratory earthquakes](https://github.com/kura-okubo/4mNonSelfSim_Paper).
