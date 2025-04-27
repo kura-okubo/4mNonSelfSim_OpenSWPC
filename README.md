@@ -1,5 +1,7 @@
 # Extended version of OpenSWPC for laboratory waveform propagation modeling
 
+[![DOI](https://zenodo.org/badge/943695795.svg)](https://doi.org/10.5281/zenodo.15288446)
+
 This repository includes an extended version of the FDM-based software [**OpenSWPC**](https://github.com/OpenSWPC/OpenSWPC/tree/master) for waveform modeling on laboratory rock specimens.
 
 ## Contents
