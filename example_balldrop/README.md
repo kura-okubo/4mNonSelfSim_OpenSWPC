@@ -41,7 +41,7 @@ sh run_example.sh
 ```
 
 ## Description
-Drop a 2 mm diameter steel ball from a height of 0.5 m onto a rock sample measuring 400 × 220 × 120 mm.
+Drop a 2 mm diameter steel ball from a height of 0.5 m onto a rock specimen measuring 400 × 200 × 100 mm.
 
 ## Result
 
