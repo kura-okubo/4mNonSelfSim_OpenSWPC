@@ -76,3 +76,6 @@ Maeda, T., S. Takemura, and T. Furumura (2017),
 OpenSWPC: An open-source integrated parallel simulation code for modeling seismic wave propagation in 3D heterogeneous viscoelastic media,
 _Earth Planets Space_, 69, 102.
 doi:[10.1186/s40623-017-0687-2](https://doi.org/10.1186/s40623-017-0687-2)
+
+# Reference
+Okubo, K., Yamashita, F. & Fukuyama, E. Dynamics of non-self-similar earthquakes illuminated by a controlled fault asperity. Nat Commun 17, 3860 (2026). https://doi.org/10.1038/s41467-026-72217-x
